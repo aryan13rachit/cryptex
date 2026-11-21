@@ -92,8 +92,38 @@ const SOUNDS = {
       burst(c, t, { dur: 0.005, type: 'highpass', freq: 3800, vol: 0.28 });
       burst(c, t + 0.004, { dur: 0.015, type: 'bandpass', freq: 1600, q: 2, vol: 0.14 });
     },
-  },
-};
+    // CRT power-on: mains switch clunk, degauss "bwong", rising flyback whine settling in
+    power(c, t) {
+      burst(c, t, { dur: 0.05, type: 'lowpass', freq: 700, vol: 0.9 });
+      ring(c, t, { f0: 140, f1: 70, dur: 0.06, vol: 0.4 });
+      // degauss: 50 Hz-ish buzz with a wobbling envelope
+      const o = c.createOscillator(), g = c.createGain(), f = c.createBiquadFilter();
+      o.type = 'sawtooth'; o.frequency.value = 50; f.type = 'lowpass'; f.frequency.value = 420;
+      g.gain.setValueAtTime(0, t + .05); g.gain.linearRampToValueAtTime(.32, t + .12); g.gain.exponentialRampToValueAtTime(.0005, t + 1.1);
+      const lfo = c.createOscillator(), lg = c.createGain(); lfo.frequency.value = 7; lg.gain.value = .12;
+      lfo.connect(lg).connect(g.gain);
+      o.connect(f).connect(g).connect(bus(c)); o.start(t + .05); o.stop(t + 1.2); lfo.start(t + .05); lfo.stop(t + 1.2);
+      // flyback whine creeping up as the tube warms
+      ring(c, t + .1, { f0: 9000, f1: 13800, dur: 1.6, vol: 0.016 });
+      burst(c, t + .08, { dur: 0.45, type: 'highpass', freq: 5000, vol: 0.06, attack: 0.08 });
+    },
+    // one character of terminal output: tiny filtered chirp
+    chirp(c, t) { ring(c, t, { f0: rnd(1700, 2100), dur: 0.018, vol: 0.05, type: 'square' }); },
+    // end of a boot line: short beep
+    beep(c, t) { ring(c, t, { f0: 1320, dur: 0.07, vol: 0.06, type: 'square' }); },
+    // static burst on the tube
+    static(c, t) {
+      burst(c, t, { dur: 0.9, type: 'bandpass', freq: 3200, q: 0.4, vol: 0.38, attack: 0.03 });
+      burst(c, t, { dur: 0.7, type: 'highpass', freq: 6500, vol: 0.18, attack: 0.02 });
+      for (let i = 0; i < 9; i++) burst(c, t + rnd(0, 0.7), { dur: 0.012, type: 'highpass', freq: 2500, vol: rnd(0.15, 0.35) });
+    },
+    // relay bank pulling in before the tape motor starts
+    relay(c, t) {
+      burst(c, t, { dur: 0.012, type: 'highpass', freq: 2800, vol: 0.45 });
+      burst(c, t + 0.05, { dur: 0.012, type: 'highpass', freq: 3200, vol: 0.35 });
+      ring(c, t, { f0: 420, f1: 300, dur: 0.03, vol: 0.12 });
+    },
+  },};
 
 /** Play a sound for the current theme: 'keydown' | 'keyup' (+ detective: 'type' | 'bell' | 'carriage'). */
 export function sfx(name) {
@@ -103,4 +133,29 @@ export function sfx(name) {
     const th = document.documentElement.dataset.theme === 'radio' ? 'radio' : 'detective';
     SOUNDS[th][name]?.(c, c.currentTime + 0.002);
   } catch { /* audio unavailable */ }
+}
+
+/**
+ * Tape transport running: low capstan-motor hum plus soft tape hiss, until stop() is called.
+ * Returns a stop function (no-op if sound is off).
+ */
+export function tapeLoop() {
+  if (!enabled) return () => {};
+  try {
+    const c = audioCtx(), t = c.currentTime;
+    const out = c.createGain(); out.gain.setValueAtTime(0, t); out.gain.linearRampToValueAtTime(1, t + 0.6); out.connect(bus(c));
+    const m = c.createOscillator(), mg = c.createGain(), mf = c.createBiquadFilter();
+    m.type = 'triangle'; m.frequency.setValueAtTime(30, t); m.frequency.linearRampToValueAtTime(100, t + 0.5);
+    mf.type = 'lowpass'; mf.frequency.value = 260; mg.gain.value = 0.05;
+    m.connect(mf).connect(mg).connect(out); m.start(t);
+    const n = noise(c); n.loop = true;
+    const nf = c.createBiquadFilter(), ng = c.createGain(); nf.type = 'bandpass'; nf.frequency.value = 5200; nf.Q.value = 0.6; ng.gain.value = 0.035;
+    n.connect(nf).connect(ng).connect(out); n.start(t);
+    return () => {
+      const e = c.currentTime;
+      out.gain.cancelScheduledValues(e); out.gain.setValueAtTime(out.gain.value, e); out.gain.linearRampToValueAtTime(0, e + 0.35);
+      m.frequency.linearRampToValueAtTime(25, e + 0.35);
+      m.stop(e + 0.4); n.stop(e + 0.4);
+    };
+  } catch { return () => {}; }
 }

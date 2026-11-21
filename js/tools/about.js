@@ -3,7 +3,7 @@
 // Radio Room: a vintage terminal boots into a hologram → Morse callsign on an oscilloscope → readouts.
 import { $, $$, esc, theme, ICONS, scopeColors, fitCanvas } from '../ui.js';
 import { haptic } from '../lib/native.js';
-import { sfx } from '../lib/sfx.js';
+import { sfx, tapeLoop } from '../lib/sfx.js';
 import { textToMorse, morseTimeline } from '../lib/morse.js';
 
 const P = {
@@ -20,17 +20,17 @@ const EVIDENCE = [
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function mount(root) {
-  let timers = [], raf = 0, obs = null, onResize = null, stopZola = null;
+  let timers = [], raf = 0, obs = null, onResize = null, stopZola = null, stopTape = null;
   const later = (ms, fn) => timers.push(setTimeout(fn, ms));
   const clear = () => {
-    timers.forEach(clearTimeout); timers = []; cancelAnimationFrame(raf); obs?.disconnect(); stopZola?.(); stopZola = null;
+    timers.forEach(clearTimeout); timers = []; cancelAnimationFrame(raf); obs?.disconnect(); stopZola?.(); stopZola = null; stopTape?.(); stopTape = null;
     if (onResize) window.removeEventListener('resize', onResize);
     document.getElementById('app')?.classList.remove('shake');
   };
-  const typeInto = (el, text, speed, done) => {
+  const typeInto = (el, text, speed, done, onChar) => {
     if (reduced()) { el.textContent = text; done?.(); return; }
     let i = 0;
-    const step = () => { el.textContent = text.slice(0, ++i); i < text.length ? later(speed, step) : done?.(); };
+    const step = () => { el.textContent = text.slice(0, ++i); onChar?.(text[i - 1], i); i < text.length ? later(speed, step) : done?.(); };
     step();
   };
 
@@ -213,22 +213,27 @@ export function mount(root) {
     const crt = $('#crt', root), face = $('#face', root), stat = $('#static', root), boot = $('#boot', root);
     shapeTube(crt); onResize = () => shapeTube(crt); window.addEventListener('resize', onResize);
     const bootText = 'CRYPTEX BIOS v2.6\nMEMORY TEST ...... 640K OK\nTRANSFERRING OPERATOR TO TERMINAL';
-    const finish = () => { $('#sections', root).classList.add('revealed'); root.querySelector('.tapebank').classList.add('run'); startTrace(); };
+    const term = (ch, i) => { if (ch === '\n') sfx('beep'); else if (ch !== ' ' && i % 2) sfx('chirp'); };
+    const finish = () => {
+      $('#sections', root).classList.add('revealed'); startTrace();
+      sfx('relay');
+      later(260, () => { root.querySelector('.tapebank').classList.add('run'); stopTape?.(); stopTape = tapeLoop(); });
+    };
     if (reduced()) {
       $('#led', root).classList.add('on'); crt.classList.add('on', 'ready'); stopZola = startZola($('#zola', root), crt); face.classList.add('show'); boot.classList.add('gone');
       $('#cname', root).textContent = P.name.toUpperCase(); $('#crole', root).textContent = 'DEVELOPER · CODEBREAKER';
       finish(); return;
     }
-    later(200, () => { $('#led', root).classList.add('on'); crt.classList.add('on'); haptic('light'); });
+    later(200, () => { $('#led', root).classList.add('on'); crt.classList.add('on'); haptic('light'); sfx('power'); });
     later(1100, () => {
       crt.classList.add('ready');
-      typeInto(boot, bootText, 12, () => later(250, () => {
+      typeInto(boot, bootText + '\n', 16, () => later(250, () => {
         // burst of static, then the face resolves out of it
-        stat.classList.add('burst'); boot.classList.add('gone');
+        stat.classList.add('burst'); boot.classList.add('gone'); sfx('static');
         later(700, () => { stopZola = startZola($('#zola', root), crt); face.classList.add('show'); stat.classList.remove('burst'); });
         later(1700, () => typeInto($('#cname', root), P.name.toUpperCase(), 40, () =>
-          typeInto($('#crole', root), 'DEVELOPER · CODEBREAKER', 22, () => later(120, finish))));
-      }));
+          typeInto($('#crole', root), 'DEVELOPER · CODEBREAKER', 22, () => later(120, finish), term), term));
+      }), term);
     });
   }
   // Scrolling oscilloscope that keys the callsign in Morse, forever
