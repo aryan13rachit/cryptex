@@ -209,3 +209,6 @@
 .tapebank.run .bank-lights i { animation: bank-blink 1.6s steps(1) infinite; }
 .bank-lights i:nth-child(3n) { --lc: #5cff8a; } .bank-lights i:nth-child(3n+1) { --lc: #ffb340; } .bank-lights i:nth-child(3n+2) { --lc: #ff6a3d; }
 @keyframes bank-blink { 0%, 49% { background: var(--lc); box-shadow: 0 0 8px var(--lc), inset 0 -1px 2px rgba(0,0,0,.3); } 50%, 100% { background: #2a2116; box-shadow: inset 0 1px 2px #000; } }
+/* three pieces of evidence under the photo */
+.board .note-calendar { grid-column: 1 / -1; justify-self: center; width: 58%; }
+.board-photo { margin-bottom: 6px; }

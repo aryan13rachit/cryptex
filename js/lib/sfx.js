@@ -62,6 +62,13 @@ const SOUNDS = {
       burst(c, s, { dur: 0.05, type: 'lowpass', freq: 650, vol: 0.25 });
       ring(c, s, { f0: rnd(150, 185), f1: 95, dur: 0.05, vol: 0.14 });
     },
+    // rubber stamp: wooden handle thump, rubber slap on paper, desk resonance
+    stamp(c, t) {
+      ring(c, t, { f0: 118, f1: 52, dur: 0.22, vol: 0.85 });
+      burst(c, t, { dur: 0.09, type: 'lowpass', freq: 900, vol: 1.0, attack: 0.002 });
+      burst(c, t + 0.004, { dur: 0.05, type: 'bandpass', freq: 2200, q: 0.9, vol: 0.45 });
+      burst(c, t + 0.06, { dur: 0.04, type: 'bandpass', freq: 1400, q: 1.5, vol: 0.12 });
+    },
     // margin bell
     bell(c, t) { ring(c, t, { f0: 2637, dur: 1.1, vol: 0.09 }); ring(c, t, { f0: 5274, dur: 0.5, vol: 0.025 }); },
     // carriage return: ratchet clicks while the carriage slides back, then a thunk

@@ -12,9 +12,6 @@ const P = {
   bio: 'I have loved cryptography and ciphers since I was a child. It started with detective stories — Sherlock Holmes, Hercule Poirot, and the codes woven through The Da Vinci Code — and it never stopped. I have solved Jane Street puzzles, gone hunting for the treasures of “The Secret”, and I start most days with the Minute Cryptic. Cryptex is the kit I always wanted: every cipher, signal and secret in one place.',
 };
 const EVIDENCE = [
-  { kind: 'card', title: 'Sherlock Holmes', by: 'Sir Arthur Conan Doyle', tag: 'Influence' },
-  { kind: 'card', title: 'Hercule Poirot', by: 'Agatha Christie', tag: 'Influence' },
-  { kind: 'clip', title: 'The Da Vinci Code', by: 'Dan Brown', tag: 'Influence' },
   { kind: 'sticky', title: 'Jane Street puzzles', by: 'Monthly puzzles', tag: 'Solved' },
   { kind: 'map', title: 'The Secret: A Treasure Hunt', by: 'Byron Preiss', tag: 'Ongoing' },
   { kind: 'calendar', title: 'Minute Cryptic', by: 'One clue a day', tag: 'Daily' },
@@ -22,10 +19,10 @@ const EVIDENCE = [
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function mount(root) {
-  let timers = [], raf = 0, obs = null, onResize = null;
+  let timers = [], raf = 0, obs = null, onResize = null, stopZola = null;
   const later = (ms, fn) => timers.push(setTimeout(fn, ms));
   const clear = () => {
-    timers.forEach(clearTimeout); timers = []; cancelAnimationFrame(raf); obs?.disconnect();
+    timers.forEach(clearTimeout); timers = []; cancelAnimationFrame(raf); obs?.disconnect(); stopZola?.(); stopZola = null;
     if (onResize) window.removeEventListener('resize', onResize);
     document.getElementById('app')?.classList.remove('shake');
   };
@@ -102,9 +99,8 @@ export function mount(root) {
         <h2 class="board-title">Evidence board</h2>
         <div class="board" id="board">
           <svg class="strings" id="strings" aria-hidden="true"></svg>
-          ${EVIDENCE.slice(0, 2).map((e, i) => note(e, i)).join('')}
           <figure class="board-photo" data-pin="hub"><img src="assets/dev.jpg" alt=""><figcaption>The subject</figcaption><i class="pin"></i></figure>
-          ${EVIDENCE.slice(2).map((e, i) => note(e, i + 2)).join('')}
+          ${EVIDENCE.map((e, i) => note(e, i)).join('')}
         </div>
 
         <article class="statement">
@@ -121,7 +117,7 @@ export function mount(root) {
       const next = () => k < fields.length ? typewriter(dds[k], fields[k][1], { speed: 48 }, () => { k++; later(200, () => { sfx('carriage'); later(380, next); }); }) : done?.();
       next();
     };
-    const stamp = () => { $('#stamp', root).classList.add('in'); haptic('medium'); };
+    const stamp = () => { $('#stamp', root).classList.add('in'); later(140, () => { sfx('stamp'); haptic('heavy'); }); };
 
     // Red string: from the hub photo's pin to every evidence pin, with a little sag
     const drawStrings = animate => {
@@ -140,7 +136,7 @@ export function mount(root) {
     const showBoard = animate => {
       $('#board', root).classList.add('pinned');
       later(animate ? 450 : 0, () => drawStrings(animate));
-      if (animate) typewriter($('#bio', root), P.bio, { speed: 30 }); else $('#bio', root).textContent = P.bio;
+      $('#bio', root).textContent = P.bio;
     };
     onResize = () => drawStrings(false);
     window.addEventListener('resize', onResize);
@@ -181,12 +177,11 @@ export function mount(root) {
       ['The Secret: A Treasure Hunt', 'Byron Preiss', 'ONGOING', 'warn'],
       ['Minute Cryptic', 'One clue a day', 'DAILY', 'live'],
     ];
-    const infl = [['Sherlock Holmes', 'Sir Arthur Conan Doyle'], ['Hercule Poirot', 'Agatha Christie'], ['The Da Vinci Code', 'Dan Brown']];
     root.innerHTML = `
       <div class="about about-radio">
         <div class="monitor">
           <div class="bezel"><div class="crt" id="crt">
-            <div class="crt-face" id="face"><canvas id="face-cv" role="img" aria-label="${esc(P.name)} on the terminal screen"></canvas></div>
+            <div class="crt-face" id="face"><canvas id="zola" role="img" aria-label="${esc(P.name)} rendered as glowing data on the terminal"></canvas></div><div class="crt-mask"></div>
             <div class="crt-static" id="static"></div>
             <div class="crt-roll"></div>
             <div class="crt-content">
@@ -208,17 +203,16 @@ export function mount(root) {
             <canvas class="scope" id="trace" style="height:90px"></canvas>
             <div class="align-view" style="margin-top:8px;text-align:center">${textToMorse('RAA')}</div></section>
           <section class="panel rv"><h2 class="panel-title">Operator file</h2><div class="out-big op-bio">${esc(P.bio)}</div></section>
-          <section class="panel rv"><h2 class="panel-title">Influences</h2><ul class="rack-list">${infl.map(([t, b]) => `<li><span class="lamp on"></span><div><b>${esc(t)}</b><small>${esc(b)}</small></div></li>`).join('')}</ul></section>
           <section class="panel rv"><h2 class="panel-title">Puzzle log</h2><ul class="rack-list">${log.map(([t, b, s, c]) => `<li><span class="led led-${c}"></span><div><b>${esc(t)}</b><small>${esc(b)}</small></div><span class="nixie">${s}</span></li>`).join('')}</ul></section>
         </div>
         <div class="about-actions"><button class="btn" id="replay">${ICONS.reset}Reboot</button></div>
       </div>`;
     const crt = $('#crt', root), face = $('#face', root), stat = $('#static', root), boot = $('#boot', root);
-    drawCrtFace($('#face-cv', root), crt);
+    shapeTube(crt); onResize = () => shapeTube(crt); window.addEventListener('resize', onResize);
     const bootText = 'CRYPTEX BIOS v2.6\nMEMORY TEST ...... 640K OK\nTRANSFERRING OPERATOR TO TERMINAL';
     const finish = () => { $('#sections', root).classList.add('revealed'); root.querySelector('.tapebank').classList.add('run'); startTrace(); };
     if (reduced()) {
-      $('#led', root).classList.add('on'); crt.classList.add('on', 'ready'); face.classList.add('show'); boot.classList.add('gone');
+      $('#led', root).classList.add('on'); crt.classList.add('on', 'ready'); stopZola = startZola($('#zola', root), crt); face.classList.add('show'); boot.classList.add('gone');
       $('#cname', root).textContent = P.name.toUpperCase(); $('#crole', root).textContent = 'DEVELOPER · CODEBREAKER';
       finish(); return;
     }
@@ -228,7 +222,7 @@ export function mount(root) {
       typeInto(boot, bootText, 12, () => later(250, () => {
         // burst of static, then the face resolves out of it
         stat.classList.add('burst'); boot.classList.add('gone');
-        later(700, () => { face.classList.add('show'); stat.classList.remove('burst'); });
+        later(700, () => { stopZola = startZola($('#zola', root), crt); face.classList.add('show'); stat.classList.remove('burst'); });
         later(1700, () => typeInto($('#cname', root), P.name.toUpperCase(), 40, () =>
           typeInto($('#crole', root), 'DEVELOPER · CODEBREAKER', 22, () => later(120, finish))));
       }));
@@ -269,33 +263,122 @@ export function mount(root) {
   return () => { clear(); window.removeEventListener('themechange', render); };
 }
 
-/** Render the portrait to fill the CRT: green phosphor monochrome, lifted shadows, edge-sharpened, vignetted. */
-function drawCrtFace(cv, crt) {
+/**
+ * Curved tube: the glass is convex, so every edge bows outward. Built as a clip-path in pixels.
+ */
+function shapeTube(crt) {
+  const r = crt.getBoundingClientRect(), w = r.width, h = r.height;
+  if (!w || !h) return;
+  const b = Math.min(w, h) * 0.045, c = Math.min(w, h) * 0.16;   // bow depth, corner size
+  crt.style.clipPath = `path('M ${c} ${b} Q ${w / 2} ${-b} ${w - c} ${b} Q ${w - b * .3} ${b * .3} ${w - b} ${c} Q ${w + b} ${h / 2} ${w - b} ${h - c} Q ${w - b * .3} ${h - b * .3} ${w - c} ${h - b} Q ${w / 2} ${h + b} ${c} ${h - b} Q ${b * .3} ${h - b * .3} ${b} ${h - c} Q ${-b} ${h / 2} ${b} ${c} Q ${b * .3} ${b * .3} ${c} ${b} Z')`;
+}
+
+/**
+ * The operator rendered as data: the portrait is resampled into a grid of glyph cells, each column a
+ * vertical stream of small glowing dashes whose brightness follows the face, with "rain" heads
+ * running down the columns. Everything is barrel-distorted to sit on the convex glass.
+ */
+function startZola(cv, crt) {
   const img = new Image();
+  let raf = 0, alive = true;
   img.onload = () => {
-    const r = crt.getBoundingClientRect();
+    if (!alive) return;
+    const rect = crt.getBoundingClientRect();
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    const w = cv.width = Math.max(200, Math.round(r.width * dpr)), h = cv.height = Math.max(220, Math.round(r.height * dpr));
+    const W = cv.width = Math.round(rect.width * dpr), H = cv.height = Math.round(rect.height * dpr);
     const ctx = cv.getContext('2d');
-    // cover-fit, biased upward so the face sits in the upper-middle of the screen
-    const s = Math.max(w / img.width, h / img.height) * 1.04;
-    const dw = img.width * s, dh = img.height * s;
-    ctx.drawImage(img, (w - dw) / 2, (h - dh) * 0.35, dw, dh);
-    const d = ctx.getImageData(0, 0, w, h), p = d.data;
-    const L = new Float32Array(w * h);
-    for (let i = 0; i < w * h; i++) L[i] = (0.299 * p[i * 4] + 0.587 * p[i * 4 + 1] + 0.114 * p[i * 4 + 2]) / 255;
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const k = y * w + x, i = k * 4;
-      let l = L[k];
-      // unsharp mask for that crisp, slightly over-processed video look
-      if (x > 1 && y > 1 && x < w - 2 && y < h - 2) l += (l - (L[k - 2] + L[k + 2] + L[k - 2 * w] + L[k + 2 * w]) / 4) * 1.4;
-      l = Math.pow(Math.min(1, Math.max(0, (l - 0.04) * 2.0)), 0.8);
-      const vx = (x / w - 0.5) * 1.7, vy = (y / h - 0.45) * 1.5;
-      const vig = Math.max(0.15, 1 - (vx * vx + vy * vy) * 0.7);
-      l *= vig;
-      p[i] = 30 + 90 * l * l; p[i + 1] = 18 + 237 * l; p[i + 2] = 22 + 110 * l; p[i + 3] = 255;
+    const cellW = 6.2 * dpr, cellH = 6.6 * dpr;
+    const cols = Math.floor(W / cellW), rows = Math.floor(H / cellH);
+    // sample the portrait into the grid (cover-fit, face slightly above centre)
+    const off = document.createElement('canvas'); off.width = cols; off.height = rows;
+    const o = off.getContext('2d', { willReadFrequently: true });
+    // zoom so the face fills the tube: photo point (50%, 52%) lands at screen (50%, 44%)
+    const s = Math.max(cols / img.width, rows / img.height) * 1.42;
+    o.filter = 'contrast(1.7) brightness(1.25)';
+    o.drawImage(img, cols / 2 - img.width * s * 0.5, rows * 0.44 - img.height * s * 0.52, img.width * s, img.height * s);
+    const px = o.getImageData(0, 0, cols, rows).data;
+    let L = new Float32Array(cols * rows);
+    for (let i = 0; i < L.length; i++) L[i] = (0.3 * px[i * 4] + 0.59 * px[i * 4 + 1] + 0.11 * px[i * 4 + 2]) / 255;
+    // feature map: local detail (difference of Gaussians) carries the face — brows, eye sockets,
+    // nose ridge, mouth — on top of a stretched base tone
+    const blur = (src, r) => {
+      let a = src, b = new Float32Array(src.length);
+      for (let pass = 0; pass < 2; pass++) {
+        for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+          let s = 0, n = 0;
+          for (let d = -r; d <= r; d++) { const xx = x + d; if (xx >= 0 && xx < cols) { s += a[y * cols + xx]; n++; } }
+          b[y * cols + x] = s / n;
+        }
+        [a, b] = [b, new Float32Array(src.length)];
+        for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+          let s = 0, n = 0;
+          for (let d = -r; d <= r; d++) { const yy = y + d; if (yy >= 0 && yy < rows) { s += a[yy * cols + x]; n++; } }
+          b[y * cols + x] = s / n;
+        }
+        a = b; b = new Float32Array(src.length);
+      }
+      return a;
+    };
+    const sorted = Array.from(L).sort((a, b) => a - b);
+    const lo = sorted[Math.floor(L.length * .05)], hi = sorted[Math.floor(L.length * .98)];
+    const fine = blur(L, 1), coarse = blur(L, 4);
+    const B = new Float32Array(L.length);
+    for (let i = 0; i < L.length; i++) {
+      const base = Math.min(1, Math.max(0, (fine[i] - lo) / (hi - lo)));
+      const dog = (fine[i] - coarse[i]) / (hi - lo);
+      B[i] = Math.min(1, Math.max(0, base * 0.55 + dog * 3.4));
     }
-    ctx.putImageData(d, 0, 0);
+    // smooth phosphor shading layer (drawn under the glyphs each frame)
+    const shade = document.createElement('canvas'); shade.width = cols; shade.height = rows;
+    const sc = shade.getContext('2d'), sd = sc.createImageData(cols, rows);
+    for (let i = 0; i < B.length; i++) { sd.data[i * 4] = 30; sd.data[i * 4 + 1] = 150; sd.data[i * 4 + 2] = 75; sd.data[i * 4 + 3] = Math.round(255 * Math.min(1, base_(i))); }
+    function base_(i) { return Math.max(0, (fine[i] - lo) / (hi - lo)) * 0.28 + B[i] * 0.12; }
+    sc.putImageData(sd, 0, 0);    // barrel mapping for a convex tube
+    const k = 0.07;
+    const map = (x, y) => {
+      const u = x / W * 2 - 1, v = y / H * 2 - 1;
+      return [((u * (1 + k * (1 - v * v)) / (1 + k)) + 1) * W / 2, ((v * (1 + k * (1 - u * u)) / (1 + k)) + 1) * H / 2];
+    };
+    // per-column rain heads
+    const head = Float32Array.from({ length: cols }, () => Math.random() * rows * 1.6);
+    const speed = Float32Array.from({ length: cols }, () => 0.18 + Math.random() * 0.5);
+    const seed = Float32Array.from({ length: cols * rows }, () => Math.random());
+    let last = 0;
+    const frame = now => {
+      if (!alive) return;
+      raf = requestAnimationFrame(frame);
+      if (now - last < 33) return;          // ~30 fps is plenty for a CRT
+      last = now;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = '#041a0e'; ctx.fillRect(0, 0, W, H);
+      // soft phosphor shading of the face underneath the glyphs
+      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(shade, 0, 0, W, H);
+      ctx.globalCompositeOperation = 'lighter';
+      const dashW = Math.max(1.5, 1.7 * dpr), dashH = cellH * 0.78;
+      for (let x = 0; x < cols; x++) {
+        head[x] += speed[x];
+        if (head[x] > rows * 1.4) head[x] = -Math.random() * rows * 0.5;
+        const jx = (seed[x] - 0.5) * cellW * 0.5;
+        for (let y = 0; y < rows; y++) {
+          const i = y * cols + x;
+          let b = B[i];
+          const d = head[x] - y;                                   // rain: brightest at the head, fading trail above it
+          const rain = d >= 0 && d < 9 ? 1 - d / 9 : 0;
+          const flick = 0.75 + 0.5 * Math.random();
+          let a = b > 0.16 ? Math.min(1, b * 1.25) * (0.6 + 0.6 * rain) * flick : (seed[i] > 0.975 ? 0.4 * flick : 0);
+          if (rain > 0.85 && b > 0.12) a = Math.max(a, 0.9);
+          if (a < 0.06) continue;
+          const [mx, my] = map(x * cellW + jx, y * cellH);
+          // most cells are a single dash; some are two-part glyphs
+          ctx.fillStyle = a > 0.8 ? `rgba(200, 255, 205, ${Math.min(1, a)})` : `rgba(70, 255, 120, ${Math.min(1, a)})`;
+          if (seed[i] > 0.7) { ctx.fillRect(mx, my, dashW, dashH * 0.45); ctx.fillRect(mx, my + dashH * 0.6, dashW, dashH * 0.4); }
+          else ctx.fillRect(mx, my, dashW, dashH);
+        }
+      }
+    };
+    raf = requestAnimationFrame(frame);
   };
   img.src = 'assets/dev.jpg';
+  return () => { alive = false; cancelAnimationFrame(raf); };
 }
