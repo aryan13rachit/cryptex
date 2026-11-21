@@ -154,3 +154,58 @@
 .led-live { background: #6cc4ff; box-shadow: 0 0 10px #6cc4ff; animation: led-blink 1.4s steps(1) infinite; }
 @keyframes led-blink { 50% { opacity: .2; } }
 .nixie { flex: none; font: 20px 'VT323', monospace; color: #ffb340; text-shadow: 0 0 8px rgba(255,150,40,.8); background: rgba(0,0,0,.45); border: 1px solid #000; border-radius: 5px; padding: 1px 8px; }
+
+/* ================= RADIO v2.3: face fills the CRT (Zola-style terminal) ================= */
+.crt { aspect-ratio: 4 / 4.6; }
+.crt-content { display: block; padding: 16px 18px; z-index: 3; }
+.crt-face { position: absolute; inset: 0; z-index: 1; opacity: 0; transition: opacity 1.2s ease-in; }
+.crt-face.show { opacity: 1; animation: face-flicker 4.5s infinite, face-jitter 7s infinite; }
+.crt-face canvas { display: block; width: 100%; height: 100%; filter: contrast(1.08) drop-shadow(0 0 6px rgba(110, 255, 160, .35)); }
+/* phosphor bloom: a blurred copy glow from the bright areas */
+.crt-face::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 55% at 50% 42%, rgba(120,255,170,.16), transparent 70%); mix-blend-mode: screen; }
+@keyframes face-flicker { 0%, 100% { opacity: 1; } 8% { opacity: .93; } 9% { opacity: 1; } 47% { opacity: .97; } 63% { opacity: .9; } 64% { opacity: 1; } }
+@keyframes face-jitter { 0%, 96%, 100% { transform: none; } 96.5% { transform: translateX(3px) skewX(-1.5deg); } 97% { transform: translateX(-2px); } 97.5% { transform: none; } }
+.crt-static { position: absolute; inset: -20px; z-index: 2; pointer-events: none; opacity: .09; mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 1 0 0 0 0 .7 0 0 0 1.6 -.45'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: static-shift .45s steps(5) infinite; transition: opacity .3s; }
+.crt-static.burst { opacity: .85; }
+@keyframes static-shift { 0% { transform: translate(0, 0); } 20% { transform: translate(-11px, 7px); } 40% { transform: translate(8px, -12px); } 60% { transform: translate(-6px, 14px); } 80% { transform: translate(13px, 4px); } 100% { transform: translate(0, 0); } }
+/* slow rolling sync bar */
+.crt-roll { position: absolute; left: 0; right: 0; top: -30%; height: 30%; z-index: 2; pointer-events: none; opacity: 0;
+  background: linear-gradient(180deg, transparent, rgba(160,255,200,.07) 45%, rgba(160,255,200,.12) 50%, rgba(160,255,200,.07) 55%, transparent); }
+.crt.ready .crt-roll { opacity: 1; animation: roll 6.5s linear infinite; }
+@keyframes roll { to { top: 100%; } }
+.boot { transition: opacity .25s; }
+.boot.gone { opacity: 0; }
+.crt-caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 18px 16px; text-align: left;
+  background: linear-gradient(180deg, transparent, rgba(0, 12, 4, .78) 55%); }
+.crt-caption .crt-name { font-size: clamp(22px, 6.8vw, 32px); color: #c8ffd9; text-shadow: 0 0 10px rgba(110,255,160,.8); letter-spacing: .06em; }
+.crt-caption .crt-role { color: #ffb340; text-shadow: 0 0 8px rgba(255,150,40,.7); opacity: 1; }
+/* stronger glass: curvature highlight + edge darkening like a bulging tube */
+.crt-glass {
+  background:
+    radial-gradient(120% 90% at 30% 12%, rgba(255,255,255,.13), transparent 40%),
+    repeating-linear-gradient(180deg, rgba(0,0,0,.34) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,.72) 100%);
+  box-shadow: inset 0 0 60px rgba(0,0,0,.95), inset 0 0 0 2px rgba(0,0,0,.6); }
+
+/* ---- Tape bank under the monitor ---- */
+.tapebank { position: relative; display: flex; align-items: center; gap: 14px; max-width: 540px; margin: -4px auto 0; padding: 16px 18px;
+  border-radius: 10px; background: linear-gradient(180deg, #d4ccb5, #b7ae95 70%, #a19883); border: 1px solid #8d8571;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.55), inset 0 -3px 0 rgba(0,0,0,.18), 0 14px 30px rgba(0,0,0,.55); }
+.reel { position: relative; flex: none; width: 78px; height: 78px; border-radius: 50%; padding: 6px;
+  background: radial-gradient(circle, #1b1b1b 0 30%, #3a2f22 31% 58%, #262019 59% 62%, #0e0e0e 63%); box-shadow: inset 0 0 0 3px #111, 0 3px 6px rgba(0,0,0,.4); }
+.reel i { position: absolute; inset: 10px; border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0 22deg, #cfc8b4 22deg 38deg, transparent 38deg 142deg, #cfc8b4 142deg 158deg, transparent 158deg 262deg, #cfc8b4 262deg 278deg, transparent 278deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 18%, #000 19% 62%, transparent 63%); mask: radial-gradient(circle, transparent 0 18%, #000 19% 62%, transparent 63%); }
+.reel::after { content: ''; position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #eee, #888); }
+.tapebank.run .reel i { animation: reel 2.4s linear infinite; }
+.tapebank.run .reel:last-child i { animation-duration: 1.7s; }
+@keyframes reel { to { transform: rotate(360deg); } }
+.bank-mid { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.bank-mid span { font: 10px 'Share Tech Mono', monospace; letter-spacing: .2em; color: #5f5948; text-shadow: 0 1px 0 rgba(255,255,255,.6); }
+.bank-lights { display: grid; grid-template-columns: repeat(6, 12px); gap: 7px; padding: 8px 10px; border-radius: 6px; background: #1c1b17; box-shadow: inset 0 2px 5px #000; }
+.bank-lights i { width: 12px; height: 12px; border-radius: 50%; background: #3b2a14; box-shadow: inset 0 1px 2px #000; }
+.tapebank.run .bank-lights i { animation: bank-blink 1.6s steps(1) infinite; }
+.bank-lights i:nth-child(3n) { --lc: #5cff8a; } .bank-lights i:nth-child(3n+1) { --lc: #ffb340; } .bank-lights i:nth-child(3n+2) { --lc: #ff6a3d; }
+@keyframes bank-blink { 0%, 49% { background: var(--lc); box-shadow: 0 0 8px var(--lc), inset 0 -1px 2px rgba(0,0,0,.3); } 50%, 100% { background: #2a2116; box-shadow: inset 0 1px 2px #000; } }

@@ -149,16 +149,22 @@ export function mount(root) {
       <div class="about about-radio">
         <div class="monitor">
           <div class="bezel"><div class="crt" id="crt">
+            <div class="crt-face" id="face"><canvas id="face-cv" role="img" aria-label="${esc(P.name)} on the terminal screen"></canvas></div>
+            <div class="crt-static" id="static"></div>
+            <div class="crt-roll"></div>
             <div class="crt-content">
               <pre class="boot" id="boot"></pre>
-              <div class="holo" id="holo"><canvas id="holo-cv" width="320" height="320" role="img" aria-label="Hologram of ${esc(P.name)}"></canvas><div class="holo-scan"></div><div class="holo-ring"><i></i><i></i></div></div>
-              <div class="crt-id"><div class="crt-name" id="cname"></div><div class="crt-role" id="crole"></div></div>
+              <div class="crt-caption"><div class="crt-name" id="cname"></div><div class="crt-role" id="crole"></div></div>
             </div>
             <div class="crt-line"></div><div class="crt-glass"></div>
           </div></div>
           <div class="chin"><span class="chin-brand">CRYPTEX · OPERATOR TERMINAL</span><span class="chin-knobs"><i></i><i></i></span><span class="chin-led" id="led"></span></div>
         </div>
-        <div class="monitor-stand"></div>
+        <div class="tapebank" aria-hidden="true">
+          <div class="reel"><i></i></div>
+          <div class="bank-mid"><div class="bank-lights">${Array.from({ length: 12 }, (_, k) => `<i style="animation-delay:${(k * 0.37) % 1.9}s;animation-duration:${1.1 + (k * 0.29) % 1.4}s"></i>`).join('')}</div><span>MEMORY BANK 012</span></div>
+          <div class="reel"><i></i></div>
+        </div>
 
         <div class="radio-sections" id="sections">
           <section class="panel rv"><h2 class="panel-title">Callsign trace<span class="spacer"></span><span class="readout">R.A.A.</span></h2>
@@ -170,26 +176,27 @@ export function mount(root) {
         </div>
         <div class="about-actions"><button class="btn" id="replay">${ICONS.reset}Reboot</button></div>
       </div>`;
-    const crt = $('#crt', root), holo = $('#holo', root), boot = $('#boot', root);
-    drawHologram($('#holo-cv', root));
-    const bootText = 'CRYPTEX BIOS v2.6\nMEMORY TEST ...... 640K OK\nLOADING OPERATOR PROFILE';
-    const finish = () => { $('#sections', root).classList.add('revealed'); startTrace(); };
+    const crt = $('#crt', root), face = $('#face', root), stat = $('#static', root), boot = $('#boot', root);
+    drawCrtFace($('#face-cv', root), crt);
+    const bootText = 'CRYPTEX BIOS v2.6\nMEMORY TEST ...... 640K OK\nTRANSFERRING OPERATOR TO TERMINAL';
+    const finish = () => { $('#sections', root).classList.add('revealed'); root.querySelector('.tapebank').classList.add('run'); startTrace(); };
     if (reduced()) {
-      $('#led', root).classList.add('on'); crt.classList.add('on', 'ready'); holo.classList.add('show');
-      boot.textContent = bootText; boot.classList.add('dim'); $('#cname', root).textContent = P.name.toUpperCase(); $('#crole', root).textContent = 'DEVELOPER · CODEBREAKER';
+      $('#led', root).classList.add('on'); crt.classList.add('on', 'ready'); face.classList.add('show'); boot.classList.add('gone');
+      $('#cname', root).textContent = P.name.toUpperCase(); $('#crole', root).textContent = 'DEVELOPER · CODEBREAKER';
       finish(); return;
     }
     later(200, () => { $('#led', root).classList.add('on'); crt.classList.add('on'); haptic('light'); });
     later(1100, () => {
       crt.classList.add('ready');
-      typeInto(boot, bootText, 12, () => later(200, () => {
-        boot.classList.add('dim'); holo.classList.add('show');
-        later(900, () => typeInto($('#cname', root), P.name.toUpperCase(), 40, () =>
+      typeInto(boot, bootText, 12, () => later(250, () => {
+        // burst of static, then the face resolves out of it
+        stat.classList.add('burst'); boot.classList.add('gone');
+        later(700, () => { face.classList.add('show'); stat.classList.remove('burst'); });
+        later(1700, () => typeInto($('#cname', root), P.name.toUpperCase(), 40, () =>
           typeInto($('#crole', root), 'DEVELOPER · CODEBREAKER', 22, () => later(120, finish))));
       }));
     });
   }
-
   // Scrolling oscilloscope that keys the callsign in Morse, forever
   function startTrace() {
     const cv = $('#trace', root);
@@ -225,29 +232,31 @@ export function mount(root) {
   return () => { clear(); window.removeEventListener('themechange', render); };
 }
 
-/** Green, scan-lined hologram with a soft oval fade. */
-function drawHologram(cv) {
+/** Render the portrait to fill the CRT: green phosphor monochrome, lifted shadows, edge-sharpened, vignetted. */
+function drawCrtFace(cv, crt) {
   const img = new Image();
   img.onload = () => {
-    const w = cv.width, h = cv.height, ctx = cv.getContext('2d');
-    const s = img.width * 0.92, sx = (img.width - s) / 2, sy = img.height * 0.02;
-    ctx.drawImage(img, sx, sy, s, s, 0, 0, w, h);
+    const r = crt.getBoundingClientRect();
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = cv.width = Math.max(200, Math.round(r.width * dpr)), h = cv.height = Math.max(220, Math.round(r.height * dpr));
+    const ctx = cv.getContext('2d');
+    // cover-fit, biased upward so the face sits in the upper-middle of the screen
+    const s = Math.max(w / img.width, h / img.height) * 1.04;
+    const dw = img.width * s, dh = img.height * s;
+    ctx.drawImage(img, (w - dw) / 2, (h - dh) * 0.35, dw, dh);
     const d = ctx.getImageData(0, 0, w, h), p = d.data;
     const L = new Float32Array(w * h);
     for (let i = 0; i < w * h; i++) L[i] = (0.299 * p[i * 4] + 0.587 * p[i * 4 + 1] + 0.114 * p[i * 4 + 2]) / 255;
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const i = (y * w + x) * 4, k = y * w + x;
-      // brightness lift, plus Sobel edges so dark hair still reads as a glowing outline
-      let l = Math.pow(Math.min(1, Math.max(0, (L[k] - 0.03) * 2.1)), 0.72);
-      if (x > 0 && y > 0 && x < w - 1 && y < h - 1) {
-        const gx = L[k - w + 1] + 2 * L[k + 1] + L[k + w + 1] - L[k - w - 1] - 2 * L[k - 1] - L[k + w - 1];
-        const gy = L[k + w - 1] + 2 * L[k + w] + L[k + w + 1] - L[k - w - 1] - 2 * L[k - w] - L[k - w + 1];
-        l = Math.max(l, Math.min(1, Math.hypot(gx, gy) * 2.4));
-      }
-      const dx = (x - w / 2) / (w * 0.44), dy = (y - h * 0.5) / (h * 0.5);
-      const fade = Math.max(0, Math.min(1, (1 - Math.hypot(dx, dy)) * 3.5));
-      p[i] = 50 * l; p[i + 1] = 255 * l; p[i + 2] = 150 * l;
-      p[i + 3] = (25 + 230 * l) * fade * (y % 3 === 0 ? 0.5 : 1);
+      const k = y * w + x, i = k * 4;
+      let l = L[k];
+      // unsharp mask for that crisp, slightly over-processed video look
+      if (x > 1 && y > 1 && x < w - 2 && y < h - 2) l += (l - (L[k - 2] + L[k + 2] + L[k - 2 * w] + L[k + 2 * w]) / 4) * 1.4;
+      l = Math.pow(Math.min(1, Math.max(0, (l - 0.04) * 2.0)), 0.8);
+      const vx = (x / w - 0.5) * 1.7, vy = (y / h - 0.45) * 1.5;
+      const vig = Math.max(0.15, 1 - (vx * vx + vy * vy) * 0.7);
+      l *= vig;
+      p[i] = 30 + 90 * l * l; p[i + 1] = 18 + 237 * l; p[i + 2] = 22 + 110 * l; p[i + 3] = 255;
     }
     ctx.putImageData(d, 0, 0);
   };

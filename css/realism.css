@@ -1,0 +1,226 @@
+/* =====================================================================
+   Realism pass — physical materials for every control.
+   Detective: typewriter keys, brass toggles, paper grain, torn tape, steel paperclips.
+   Radio: chrome bat toggles, fader caps, jewel lamps, keycaps, brushed metal.
+   ===================================================================== */
+
+/* ======================= DETECTIVE ======================= */
+/* Typewriter keys: ivory keytop in a chrome rim, with a visible key wall that sinks when pressed */
+[data-theme="detective"] .btn {
+  border: 3px solid transparent; border-radius: 999px; padding: 8px 20px; min-height: 46px;
+  font-family: 'Special Elite', monospace; letter-spacing: .08em; color: #2a1d12;
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 28%, #fffdf6, #efe4cb 62%, #d9c9a4) padding-box,
+    linear-gradient(180deg, #fbfcfd, #9aa0a8 48%, #d9dde2 52%, #6f747b) border-box;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.9), inset 0 -3px 5px rgba(120, 90, 40, .28),
+    0 4px 0 #4e5257, 0 5px 0 #3a3d41, 0 8px 12px rgba(0, 0, 0, .45);
+  transition: transform .06s, box-shadow .06s;
+}
+[data-theme="detective"] .btn:active, [data-theme="detective"] .btn.on {
+  transform: translateY(4px);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.7), inset 0 -2px 4px rgba(120, 90, 40, .3), 0 1px 0 #3a3d41, 0 2px 4px rgba(0,0,0,.4);
+}
+/* primary = black lacquer key with cream lettering */
+[data-theme="detective"] .btn.primary {
+  color: #f6ecd6;
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 25%, #5a5a5a, #222 60%, #0c0c0c) padding-box,
+    linear-gradient(180deg, #fbfcfd, #9aa0a8 48%, #d9dde2 52%, #6f747b) border-box;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.35), inset 0 -3px 5px rgba(0,0,0,.6),
+    0 4px 0 #4e5257, 0 5px 0 #3a3d41, 0 8px 12px rgba(0, 0, 0, .5);
+}
+[data-theme="detective"] .btn.primary.filled, [data-theme="detective"] .btn.primary.on { background:
+    radial-gradient(ellipse 80% 70% at 50% 25%, #b8463d, #8f1f19 60%, #5e0f0b) padding-box,
+    linear-gradient(180deg, #fbfcfd, #9aa0a8 48%, #d9dde2 52%, #6f747b) border-box; color: #fff3e0; }
+[data-theme="detective"] .btn.small { min-height: 36px; padding: 4px 14px; font-size: 12px; }
+[data-theme="detective"] .btn svg { filter: drop-shadow(0 1px 0 rgba(255,255,255,.4)); }
+
+/* Brass bat-handle toggle mounted on a walnut plate */
+[data-theme="detective"] input.switch {
+  width: 64px; height: 34px; border-radius: 6px; border: 0;
+  background: linear-gradient(180deg, #6b4423, #4a2e17); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 -2px 3px rgba(0,0,0,.4), 0 2px 4px rgba(0,0,0,.35);
+}
+[data-theme="detective"] input.switch::before {        /* brass nut */
+  top: 50%; left: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; transform: none !important;
+  background: radial-gradient(circle at 38% 32%, #fff2c2, #d4a83c 45%, #7a5a16 100%); box-shadow: 0 0 0 2px #3a2610, 0 2px 3px rgba(0,0,0,.5); border-radius: 50%;
+}
+[data-theme="detective"] input.switch::after {         /* lever with ball tip */
+  content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 22px; margin-left: -3.5px; margin-top: -22px; border-radius: 4px 4px 2px 2px;
+  transform-origin: 50% 100%; transform: rotate(-38deg); transition: transform .14s cubic-bezier(.3, 1.6, .5, 1);
+  background: linear-gradient(90deg, #8a6418, #fff0b8 40%, #c99a2e 60%, #6e4f12); box-shadow: 1px 2px 2px rgba(0,0,0,.45);
+}
+[data-theme="detective"] input.switch:checked { background: linear-gradient(180deg, #6b4423, #4a2e17); }
+[data-theme="detective"] input.switch:checked::after { transform: rotate(38deg); }
+
+/* Brass slider knob in an engraved slot */
+[data-theme="detective"] input[type=range] { -webkit-appearance: none; appearance: none; height: 30px; background: transparent; }
+[data-theme="detective"] input[type=range]::-webkit-slider-runnable-track { height: 8px; border-radius: 4px; background: linear-gradient(180deg, #3b2817, #6b4e30); box-shadow: inset 0 2px 3px rgba(0,0,0,.6), 0 1px 0 rgba(255,255,255,.4); }
+[data-theme="detective"] input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; margin-top: -9px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 30%, #fff4c8, #d6aa40 45%, #7a5a16); box-shadow: 0 0 0 1.5px #4a3410, 0 3px 4px rgba(0,0,0,.5), inset 0 -2px 3px rgba(0,0,0,.25); }
+[data-theme="detective"] input[type=range]::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid #4a3410; background: radial-gradient(circle at 38% 30%, #fff4c8, #d6aa40 45%, #7a5a16); }
+
+/* Glass bulbs in brass bezels */
+[data-theme="detective"] .lamp { width: 15px; height: 15px; border: 2px solid #9c7a2a; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.7) 0 10%, #6e5a48 35%, #2b2018 80%); box-shadow: 0 1px 2px rgba(0,0,0,.4); }
+[data-theme="detective"] .lamp.on { background: radial-gradient(circle at 35% 30%, #fff 0 10%, #ff9a7a 30%, #c4261c 75%); box-shadow: 0 0 10px 2px rgba(255, 90, 50, .55), 0 1px 2px rgba(0,0,0,.4); }
+
+/* Paper: real grain, darker edges, a soft lift shadow */
+[data-theme="detective"] .panel {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .12 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23p)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 0% 0%, rgba(140, 95, 40, .2), transparent 40%),
+    radial-gradient(ellipse at 100% 100%, rgba(140, 95, 40, .22), transparent 45%),
+    linear-gradient(180deg, #f6ecd2, #f2e6c9 60%, #e8d6ab);
+  box-shadow: 0 1px 1px rgba(0,0,0,.25), 0 10px 22px rgba(0,0,0,.42), inset 0 0 40px rgba(120, 80, 30, .12);
+}
+/* translucent tape with torn ends */
+[data-theme="detective"] .panel::before {
+  width: 96px; height: 24px; margin-left: -48px; top: -11px; border: 0;
+  background: linear-gradient(180deg, rgba(255, 250, 230, .62), rgba(235, 225, 195, .5));
+  box-shadow: 0 1px 2px rgba(0,0,0,.18);
+  clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 2%, 16% 9%, 84% 6%, 88% 0, 92% 9%, 96% 1%, 100% 8%, 100% 92%, 96% 100%, 92% 90%, 88% 98%, 84% 91%, 16% 93%, 12% 100%, 8% 90%, 4% 99%, 0 92%);
+}
+/* steel paperclip (drawn as a real two-loop clip) */
+[data-theme="detective"] .card::after {
+  border: 0; border-radius: 0; box-shadow: none; width: 16px; height: 46px; top: -14px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 46'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%236d737b'/%3E%3Cstop offset='.45' stop-color='%23eef1f4'/%3E%3Cstop offset='1' stop-color='%23858b93'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M5 12 V36 a3 3 0 0 0 6 0 V8 a5 5 0 0 0 -10 0 V38 a7 7 0 0 0 14 0 V14' fill='none' stroke='url(%23s)' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / contain;
+  filter: drop-shadow(1px 2px 1px rgba(0,0,0,.35));
+}
+/* manila folders: fibre texture + worn edge */
+[data-theme="detective"] .card { box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 -1px 0 rgba(120, 85, 30, .25) inset, 0 10px 18px rgba(0,0,0,.45), 0 2px 3px rgba(0,0,0,.3); }
+[data-theme="detective"] .card::before { box-shadow: 0 -2px 4px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.5); }
+
+/* nameplate: engraved brass */
+[data-theme="detective"] .brand-name {
+  align-self: flex-start; padding: 2px 12px 1px; border-radius: 3px; color: #3a2a10;
+  background: linear-gradient(180deg, #f6dd94, #c99a3e 55%, #a77a26); box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -1px 0 rgba(0,0,0,.25), 0 2px 4px rgba(0,0,0,.6);
+  text-shadow: 0 1px 0 rgba(255, 240, 200, .7), 0 -1px 0 rgba(0,0,0,.25);
+}
+[data-theme="detective"] .brand-sub { margin-top: 4px; }
+/* inputs: slightly sunken into the paper */
+[data-theme="detective"] input[type=text], [data-theme="detective"] input[type=number], [data-theme="detective"] input[type=password], [data-theme="detective"] select, [data-theme="detective"] textarea {
+  box-shadow: inset 0 1px 3px rgba(80, 55, 25, .3);
+}
+/* index tabs: card stock with shadow */
+[data-theme="detective"] .seg button { box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 -1px 3px rgba(0,0,0,.12); }
+[data-theme="detective"] .seg button[aria-pressed="true"] { box-shadow: inset 0 1px 0 #fff, 0 -2px 4px rgba(0,0,0,.15); }
+/* Enigma keys: proper chrome-ringed glass typewriter keys */
+[data-theme="detective"] .kb .k:not(.lampboard .k) { border: 3px solid transparent;
+  background: radial-gradient(circle at 45% 35%, #555, #151515 65%) padding-box, linear-gradient(180deg, #fbfcfd, #9aa0a8 48%, #d9dde2 52%, #6f747b) border-box;
+  box-shadow: inset 0 2px 2px rgba(255,255,255,.25), 0 4px 0 #3a3d41, 0 6px 8px rgba(0,0,0,.45); }
+[data-theme="detective"] .kb .k:not(.lampboard .k):active { transform: translateY(4px); box-shadow: inset 0 2px 2px rgba(255,255,255,.2), 0 0 0 #3a3d41, 0 2px 3px rgba(0,0,0,.4); }
+
+/* ======================= RADIO ROOM ======================= */
+/* Keycaps: bakelite cap with dished top and side walls; primary is a backlit amber lens */
+[data-theme="radio"] .btn {
+  border: 1px solid #070806; border-radius: 9px;
+  background: radial-gradient(ellipse 90% 60% at 50% 30%, #5b6158, #383d36 70%), linear-gradient(180deg, #4a4f47, #2d312b);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 -2px 3px rgba(0,0,0,.45),
+    0 3px 0 #1a1c18, 0 4px 0 #0b0c0a, 0 7px 10px rgba(0,0,0,.55);
+  transition: transform .06s, box-shadow .06s;
+}
+[data-theme="radio"] .btn:active, [data-theme="radio"] .btn.on { transform: translateY(3px); box-shadow: inset 0 2px 5px rgba(0,0,0,.6), 0 1px 0 #0b0c0a; }
+[data-theme="radio"] .btn.primary {
+  color: #2a1000; text-shadow: 0 1px 0 rgba(255,220,180,.5);
+  background: radial-gradient(ellipse 70% 80% at 50% 35%, #ffd0a0, #ff8a3d 45%, #c74a12 100%);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.6), inset 0 -3px 6px rgba(120, 30, 0, .5),
+    0 0 0 3px #2b2e29, 0 0 0 4px #9a9d96, 0 4px 0 4px #0b0c0a, 0 8px 14px rgba(0,0,0,.55), 0 0 18px rgba(255, 120, 40, .28);
+}
+[data-theme="radio"] .btn.primary:active, [data-theme="radio"] .btn.primary.on { transform: translateY(3px);
+  box-shadow: inset 0 2px 6px rgba(120, 30, 0, .6), 0 0 0 3px #2b2e29, 0 0 0 4px #9a9d96, 0 1px 0 4px #0b0c0a, 0 0 26px rgba(255, 140, 50, .6); }
+
+/* Chrome bat-handle toggle on a black crinkle plate */
+[data-theme="radio"] input.switch {
+  width: 64px; height: 34px; border-radius: 6px; border: 1px solid #000;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cfilter id='c'%3E%3CfeTurbulence baseFrequency='1.2' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='60' height='60' filter='url(%23c)'/%3E%3C/svg%3E"), #151714;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 2px 3px rgba(0,0,0,.6);
+}
+[data-theme="radio"] input.switch::before {          /* hex nut */
+  top: 50%; left: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; transform: none !important; border: 0; border-radius: 0;
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%);
+  background: radial-gradient(circle at 40% 35%, #ffffff, #b9bdb6 40%, #5f625c 100%); box-shadow: none;
+}
+[data-theme="radio"] input.switch::after {           /* chrome bat lever */
+  content: ''; position: absolute; left: 50%; top: 50%; width: 8px; height: 24px; margin-left: -4px; margin-top: -24px; border-radius: 5px 5px 2px 2px;
+  transform-origin: 50% 100%; transform: rotate(-38deg); transition: transform .12s cubic-bezier(.3, 1.6, .5, 1);
+  background: linear-gradient(90deg, #6d716a, #ffffff 42%, #b5b9b2 62%, #565a54); box-shadow: 1px 2px 2px rgba(0,0,0,.6);
+}
+[data-theme="radio"] input.switch:checked { background-color: #151714; box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 2px 3px rgba(0,0,0,.6), 0 0 0 1px rgba(92,255,138,.25); }
+[data-theme="radio"] input.switch:checked::after { transform: rotate(38deg); }
+[data-theme="radio"] input.switch:checked::before { box-shadow: none; background: radial-gradient(circle at 40% 35%, #ffffff, #b9bdb6 40%, #5f625c 100%); }
+[data-theme="detective"] input.switch:checked::before { background: radial-gradient(circle at 38% 32%, #fff2c2, #d4a83c 45%, #7a5a16 100%); }
+
+/* Mixing-desk fader: slot + grippy cap */
+[data-theme="radio"] input[type=range] { height: 34px; background: transparent; box-shadow: none; }
+[data-theme="radio"] input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: #050605; box-shadow: inset 0 1px 2px #000, 0 1px 0 rgba(255,255,255,.1); }
+[data-theme="radio"] input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 32px; margin-top: -13px; border-radius: 4px; border: 1px solid #000;
+  background: repeating-linear-gradient(180deg, transparent 0 4px, rgba(0,0,0,.45) 4px 5px, rgba(255,255,255,.25) 5px 6px), linear-gradient(90deg, #5a5e57, #e4e6df 45%, #9da197 70%, #4c4f49);
+  box-shadow: 0 3px 5px rgba(0,0,0,.6); }
+[data-theme="radio"] input[type=range]::-moz-range-thumb { width: 18px; height: 30px; border-radius: 4px; border: 1px solid #000; background: linear-gradient(90deg, #5a5e57, #e4e6df 45%, #9da197 70%, #4c4f49); }
+
+/* Jewel lamps in chrome bezels */
+[data-theme="radio"] .lamp { width: 15px; height: 15px; border: 2px solid #8d918a; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.55) 0 10%, #4a1c12 40%, #1c0805 85%); box-shadow: 0 0 0 1px #111, 0 1px 2px rgba(0,0,0,.6); }
+[data-theme="radio"] .lamp.on { background: radial-gradient(circle at 35% 30%, #fff 0 10%, #ff9c7a 30%, #ff3b1a 70%, #a11a06); box-shadow: 0 0 0 1px #111, 0 0 12px 3px rgba(255, 70, 30, .65); }
+
+/* Faceplates: brushed aluminium grain + real screw heads with slots */
+[data-theme="radio"] .panel, [data-theme="radio"] .card {
+  background:
+    radial-gradient(circle at 11px 11px, #e5e7e2 0 1px, #a3a69f 2px, #50534e 3.5px, #1a1b19 4.5px, transparent 5px),
+    radial-gradient(circle at calc(100% - 11px) 11px, #e5e7e2 0 1px, #a3a69f 2px, #50534e 3.5px, #1a1b19 4.5px, transparent 5px),
+    radial-gradient(circle at 11px calc(100% - 11px), #e5e7e2 0 1px, #a3a69f 2px, #50534e 3.5px, #1a1b19 4.5px, transparent 5px),
+    radial-gradient(circle at calc(100% - 11px) calc(100% - 11px), #e5e7e2 0 1px, #a3a69f 2px, #50534e 3.5px, #1a1b19 4.5px, transparent 5px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0 1px, transparent 1px 2px, rgba(0,0,0,.03) 2px 3px),
+    linear-gradient(180deg, #3a4038, #2b3029);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), inset 0 -1px 0 rgba(0,0,0,.5), inset 1px 0 0 rgba(255,255,255,.05), 0 10px 22px rgba(0,0,0,.55);
+}
+/* engraved panel titles */
+[data-theme="radio"] .panel-title { text-shadow: 0 -1px 0 rgba(0,0,0,.8), 0 1px 0 rgba(255,255,255,.12); }
+/* CRT inputs get a glass highlight and a recessed bezel */
+[data-theme="radio"] input[type=text], [data-theme="radio"] input[type=number], [data-theme="radio"] input[type=password], [data-theme="radio"] select, [data-theme="radio"] textarea,
+[data-theme="radio"] .out-big, [data-theme="radio"] .align-view, [data-theme="radio"] canvas.scope {
+  border: 2px solid #050605;
+  box-shadow: inset 0 0 22px rgba(0,0,0,.95), inset 0 1px 0 rgba(140,255,180,.06), 0 1px 0 rgba(255,255,255,.08), 0 0 0 3px #1d201c;
+}
+[data-theme="radio"] textarea, [data-theme="radio"] .out-big, [data-theme="radio"] .align-view {
+  background-image: linear-gradient(160deg, rgba(255,255,255,.06), transparent 30%), repeating-linear-gradient(180deg, rgba(0,0,0,.28) 0 1px, transparent 1px 3px), radial-gradient(ellipse at center, #062514, #020b05 90%);
+}
+/* latching piano keys */
+[data-theme="radio"] .seg button { border: 1px solid #050605; box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 3px 0 #050605, 0 4px 4px rgba(0,0,0,.4); transition: transform .06s; }
+[data-theme="radio"] .seg button[aria-pressed="true"] { transform: translateY(2px); box-shadow: inset 0 2px 6px rgba(0,0,0,.85), 0 1px 0 #050605; }
+/* nixie readouts: glass tube with mesh */
+[data-theme="radio"] .card-num, [data-theme="radio"] .nixie {
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 1px, transparent 1px 3px), repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0 1px, transparent 1px 3px), radial-gradient(ellipse at 50% 30%, rgba(255,160,60,.18), rgba(0,0,0,.7));
+  box-shadow: inset 0 0 6px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.12), 0 0 0 1px #000;
+}
+/* Enigma keys: chrome-ringed bakelite caps */
+[data-theme="radio"] .kb .k:not(.lampboard .k) { border: 3px solid transparent;
+  background: radial-gradient(circle at 45% 35%, #4a4a4a, #111 65%) padding-box, linear-gradient(180deg, #f3f4f1, #8d918a 50%, #c9ccc5 55%, #5d605a) border-box;
+  box-shadow: inset 0 2px 2px rgba(255,255,255,.2), 0 4px 0 #000, 0 6px 8px rgba(0,0,0,.5); }
+[data-theme="radio"] .kb .k:not(.lampboard .k):active { transform: translateY(4px); box-shadow: inset 0 2px 2px rgba(255,255,255,.15), 0 0 0 #000, 0 2px 3px rgba(0,0,0,.5); }
+
+/* ---- primary keys keep a chrome rim (older rule painted it red) ---- */
+[data-theme="detective"] .btn.primary { border-color: transparent; }
+
+/* ---- Enigma rotor thumb-buttons and lampboard lenses ---- */
+[data-theme="detective"] .rotor button { border: 2px solid transparent; border-radius: 8px;
+  background: radial-gradient(ellipse 80% 70% at 50% 28%, #fffdf6, #efe4cb 62%, #d9c9a4) padding-box, linear-gradient(180deg, #fbfcfd, #9aa0a8 48%, #d9dde2 52%, #6f747b) border-box;
+  box-shadow: inset 0 1px 1px #fff, 0 3px 0 #4e5257, 0 5px 7px rgba(0,0,0,.35); transition: transform .06s; }
+[data-theme="detective"] .rotor button:active { transform: translateY(3px); box-shadow: inset 0 1px 1px #fff, 0 0 0 #4e5257, 0 1px 2px rgba(0,0,0,.3); }
+[data-theme="detective"] .rotor .win { border: 4px solid transparent; border-radius: 6px;
+  background: linear-gradient(90deg, #b9a77f, #fbf3dc 45%, #b9a77f) padding-box, linear-gradient(180deg, #f6dd94, #a77a26 50%, #e8c66c 55%, #7a5a16) border-box;
+  box-shadow: inset 0 4px 8px rgba(0,0,0,.45), inset 0 -3px 6px rgba(0,0,0,.25), 0 2px 4px rgba(0,0,0,.35); }
+[data-theme="detective"] .lampboard .k { border: 3px solid transparent; color: #8a7a62;
+  background: radial-gradient(circle at 40% 32%, #fffaf0, #e6dcc6 45%, #c7b89a 100%) padding-box, linear-gradient(180deg, #f6dd94, #a77a26 50%, #e8c66c 55%, #7a5a16) border-box;
+  box-shadow: inset 0 0 6px rgba(120, 90, 40, .35), 0 2px 3px rgba(0,0,0,.3); }
+[data-theme="detective"] .lampboard .k.lit { color: #4a2600;
+  background: radial-gradient(circle at 45% 40%, #fffbe0, #ffd85a 50%, #e3a21a) padding-box, linear-gradient(180deg, #f6dd94, #a77a26 50%, #e8c66c 55%, #7a5a16) border-box;
+  box-shadow: 0 0 18px 5px rgba(255, 200, 60, .7), inset 0 0 6px rgba(255,255,255,.6); }
+[data-theme="radio"] .rotor button { border: 1px solid #050605; border-radius: 7px;
+  background: radial-gradient(ellipse 90% 60% at 50% 30%, #5b6158, #383d36 70%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 3px 0 #0b0c0a, 0 5px 7px rgba(0,0,0,.5); transition: transform .06s; }
+[data-theme="radio"] .rotor button:active { transform: translateY(3px); box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 0 #0b0c0a; }
+[data-theme="radio"] .lampboard .k { border: 3px solid transparent; color: #6b6450;
+  background: radial-gradient(circle at 40% 32%, #4a4535, #23201a 60%, #141310) padding-box, linear-gradient(180deg, #f3f4f1, #8d918a 50%, #c9ccc5 55%, #5d605a) border-box;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.8), 0 2px 3px rgba(0,0,0,.5); }
+[data-theme="radio"] .lampboard .k.lit { color: #2b1600;
+  background: radial-gradient(circle at 45% 40%, #fffbe0, #ffc84a 50%, #e07b12) padding-box, linear-gradient(180deg, #f3f4f1, #8d918a 50%, #c9ccc5 55%, #5d605a) border-box;
+  box-shadow: 0 0 22px 6px rgba(255, 180, 50, .7), inset 0 0 6px rgba(255,255,255,.5); }

@@ -1,8 +1,8 @@
 // Offline cache for Cryptex. Bump VERSION when files change.
-const VERSION = 'cryptex-v5';
+const VERSION = 'cryptex-v6';
 const FILES = [
   './', 'index.html', 'manifest.webmanifest',
-  'css/app.css', 'css/theme-detective.css', 'css/theme-radio.css', 'css/enhance.css', 'css/polish.css', 'css/about.css',
+  'css/app.css', 'css/theme-detective.css', 'css/theme-radio.css', 'css/enhance.css', 'css/polish.css', 'css/about.css', 'css/realism.css',
   'js/app.js', 'js/ui.js',
   'js/lib/classical.js', 'js/lib/enigma.js', 'js/lib/morse.js', 'js/lib/dsp.js', 'js/lib/sstv.js', 'js/lib/soundpaper.js', 'js/lib/audio.js', 'js/lib/camera.js', 'js/lib/sfx.js', 'js/lib/native.js',
   'js/worklets/processors.js',
