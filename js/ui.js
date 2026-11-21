@@ -1,4 +1,5 @@
 // Shared UI helpers and icons.
+import { isNative, nativeSaveShare } from './lib/native.js';
 
 export const $ = (s, r = document) => r.querySelector(s);
 export const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -48,8 +49,9 @@ export async function copy(text) {
   catch { toast('Copy failed — select and copy manually'); }
 }
 
-export function download(data, filename, type) {
+export async function download(data, filename, type) {
   const blob = data instanceof Blob ? data : new Blob([data], { type });
+  if (isNative()) { try { if (await nativeSaveShare(blob, filename)) return; } catch (e) { toast('Could not save: ' + e.message); return; } }
   const url = URL.createObjectURL(blob);
   const a = Object.assign(document.createElement('a'), { href: url, download: filename });
   document.body.appendChild(a); a.click(); a.remove();
@@ -58,6 +60,7 @@ export function download(data, filename, type) {
 
 /** Share a file via the Web Share API when available, else download it. */
 export async function shareOrDownload(blob, filename) {
+  if (isNative()) return download(blob, filename);
   const file = new File([blob], filename, { type: blob.type });
   if (navigator.canShare?.({ files: [file] })) {
     try { await navigator.share({ files: [file], title: filename }); return; } catch (e) { if (e.name === 'AbortError') return; }

@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/theme-detective.css">
   <link rel="stylesheet" href="css/theme-radio.css">
+  <link rel="stylesheet" href="css/enhance.css">
 </head>
 <body>
   <!-- Rough-ink filter used for rubber-stamp effects in the detective theme -->
@@ -39,6 +40,9 @@
       <button class="icon-btn theme-btn" id="theme-btn" aria-label="Switch interface style" title="Switch interface style">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M12 4a8 8 0 0 1 0 16"/></svg>
       </button>
+      <button class="icon-btn" id="settings-btn" aria-label="Settings" title="Settings">
+        <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+      </button>
     </header>
     <main id="view" tabindex="-1"></main>
   </div>
@@ -62,7 +66,22 @@
     </div>
   </div>
 
-  <div id="flash" class="flash" hidden></div>
+  <div id="settings" class="sheet" hidden>
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="set-title">
+      <div class="sheet-grip"></div>
+      <h2 class="panel-title" id="set-title">Settings</h2>
+      <div class="set-row"><span class="label">Interface</span>
+        <div class="seg"><button type="button" data-set-theme="detective">Detective</button><button type="button" data-set-theme="radio">Radio Room</button></div></div>
+      <label class="set-row"><span class="label">Sound effects</span><input type="checkbox" class="switch" id="set-sound"></label>
+      <label class="set-row"><span class="label">Vibration</span><input type="checkbox" class="switch" id="set-haptics"></label>
+      <button class="btn block" id="set-about" style="margin-top:14px">About the developer</button>
+      <button class="btn block primary" data-close style="margin-top:10px">Done</button>
+      <p class="hint" id="set-version" style="text-align:center"></p>
+    </div>
+  </div>
+
+  <div id="splash" class="splash" hidden></div>
+  <div id="flash" class="flash" hidden data-nosfx></div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script type="module" src="js/app.js"></script>

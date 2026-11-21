@@ -1,11 +1,26 @@
 {
-  "name": "cryptex",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "description": "Cryptex - vintage cipher & signals toolkit (installable PWA)",
-  "scripts": {
-    "test": "node test/run-tests.js",
-    "serve": "python -m http.server 8080"
-  }
+    "name": "cryptex",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "description": "Cryptex - vintage cipher & signals toolkit (installable PWA)",
+    "scripts": {
+        "test": "node test/run-tests.js",
+        "serve": "python -m http.server 8080",
+        "build:www": "node scripts/build-www.mjs",
+        "android": "node scripts/build-www.mjs && npx cap sync android"
+    },
+    "dependencies": {
+        "@capacitor/android": "^8.6.2",
+        "@capacitor/app": "^8.1.2",
+        "@capacitor/core": "^8.6.2",
+        "@capacitor/filesystem": "^8.1.5",
+        "@capacitor/haptics": "^8.0.2",
+        "@capacitor/share": "^8.0.3",
+        "@capacitor/status-bar": "^8.0.4",
+        "@capawesome/capacitor-torch": "^8.0.2"
+    },
+    "devDependencies": {
+        "@capacitor/cli": "^8.6.2"
+    }
 }

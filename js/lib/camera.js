@@ -1,4 +1,5 @@
 // Camera + flashlight (torch) helpers.
+import { nativeTorch } from './native.js';
 
 export async function openCamera(videoEl, { facingMode = 'environment', width = 640, height = 480 } = {}) {
   if (!navigator.mediaDevices?.getUserMedia) throw new Error('Camera needs a secure (https) connection and a modern browser.');
@@ -19,6 +20,8 @@ export async function openCamera(videoEl, { facingMode = 'environment', width = 
 
 /** Open the rear camera purely to control its torch. Returns { supported, set(on), stop() }. */
 export async function openTorch() {
+  const nt = await nativeTorch();
+  if (nt) return nt;
   if (!navigator.mediaDevices?.getUserMedia) return { supported: false, set() {}, stop() {} };
   const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
   const track = stream.getVideoTracks()[0];

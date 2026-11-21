@@ -28,7 +28,7 @@ export function mount(root) {
     <section class="panel">
       <h2 class="panel-title">Telegraph key</h2>
       <p class="hint" style="margin-top:0">Press and hold to key. Short = dot, long = dash. Your fist is decoded live.</p>
-      <button class="btn primary telegraph-key" id="key">${ICONS.key}Key</button>
+      <button class="btn primary telegraph-key" id="key" data-nosfx>${ICONS.key}Key</button>
       <div class="out-big" id="key-out" style="margin-top:12px"></div>
       <div class="btns"><button class="btn small" id="key-clear">Clear</button></div>
     </section>

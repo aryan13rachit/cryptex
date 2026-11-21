@@ -145,7 +145,7 @@ canvas.scope { display: block; width: 100%; height: 120px; border-radius: var(--
   border-radius: 4px 14px 4px 4px; box-shadow: 0 10px 24px rgba(0,0,0,.5); margin-top: 16px; overflow: visible;
 }
 .pick-detective .pick-tab { position: absolute; top: -16px; left: 0; background: #e3cd94; padding: 2px 16px; border-radius: 8px 8px 0 0; font-size: 12px; letter-spacing: .14em; }
-.pick-detective .pick-stamp { position: absolute; right: 14px; top: -10px; font-size: 12px !important; background: rgba(236, 217, 168, .6); transform: rotate(-12deg); color: #a3221d; border: 3px solid #a3221d; padding: 2px 8px; font-size: 14px; letter-spacing: .1em; filter: url(#rough-ink); opacity: .85; }
+.pick-detective .pick-stamp { position: absolute; right: 14px; top: -10px; font-size: 12px !important; transform: rotate(-12deg); color: #a3221d; border: 3px solid #a3221d; padding: 2px 8px; font-size: 14px; letter-spacing: .1em; filter: url(#rough-ink); opacity: .85; }
 .pick-radio {
   background: linear-gradient(180deg, #3a403a, #22261f); color: #c8f7d4; font-family: 'VT323', monospace; border-radius: 14px;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 10px 24px rgba(0,0,0,.6); border: 2px solid #111;

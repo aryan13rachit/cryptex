@@ -18,6 +18,9 @@ An installable phone app (PWA) with two interfaces:
 | 09 | Telegraph Office | Base64, hex, binary, octal, decimal, URL encoding |
 | 10 | Sealed Envelope | Real AES-256-GCM encryption (PBKDF2), SHA hashes, password generator |
 | 11 | Codebreaker | Letter-frequency chart vs English, index of coincidence, cipher-type verdict, auto-solve |
+| — | The Developer | About Rachit Aryan Asthana — a case file slams onto the desk / a CRT boots into a green hologram |
+
+Every button has a synthesised, theme-matched sound effect (typewriter & stamps / relays & CRT) and haptics; both can be switched off in Settings.
 
 ## Running it
 No build step. Serve the folder over HTTP:
@@ -34,6 +37,20 @@ Easiest options:
 2. **Quick test over USB (Android):** `adb reverse tcp:8080 tcp:8080`, then open `http://localhost:8080` in Chrome on the phone (localhost counts as secure).
 
 Flashlight control works in Chrome on Android; on iPhone the Signal Lamp uses the screen instead.
+
+## Native Android app (Capacitor)
+The same code ships as a real Android app (`com.rachitaryan.cryptex`) with native flashlight, haptics,
+share-sheet saving and the hardware back button.
+
+Requirements: JDK 21, Android SDK (platform 36, build-tools 35+), Node 20+.
+```
+npm install
+npm run android                     # copy web files → www/ and sync into android/
+cd android && gradlew assembleRelease
+adb install -r app/build/outputs/apk/release/app-release.apk
+```
+Release signing reads `android/keystore.properties` + `android/cryptex-release.jks` (both git-ignored).
+**Back up the keystore** — Android only accepts updates signed with the same key.
 
 ## Tests
 ```

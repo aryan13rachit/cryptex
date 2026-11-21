@@ -1,14 +1,14 @@
-﻿// Offline cache for Cryptex. Bump VERSION when files change.
-const VERSION = 'cryptex-v2';
+// Offline cache for Cryptex. Bump VERSION when files change.
+const VERSION = 'cryptex-v3';
 const FILES = [
   './', 'index.html', 'manifest.webmanifest',
-  'css/app.css', 'css/theme-detective.css', 'css/theme-radio.css',
+  'css/app.css', 'css/theme-detective.css', 'css/theme-radio.css', 'css/enhance.css',
   'js/app.js', 'js/ui.js',
-  'js/lib/classical.js', 'js/lib/enigma.js', 'js/lib/morse.js', 'js/lib/dsp.js', 'js/lib/sstv.js', 'js/lib/soundpaper.js', 'js/lib/audio.js', 'js/lib/camera.js',
+  'js/lib/classical.js', 'js/lib/enigma.js', 'js/lib/morse.js', 'js/lib/dsp.js', 'js/lib/sstv.js', 'js/lib/soundpaper.js', 'js/lib/audio.js', 'js/lib/camera.js', 'js/lib/sfx.js', 'js/lib/native.js',
   'js/worklets/processors.js',
   'js/tools/caesar.js', 'js/tools/vigenere.js', 'js/tools/ciphers.js', 'js/tools/encoders.js', 'js/tools/morse.js', 'js/tools/lightbeam.js',
-  'js/tools/enigma.js', 'js/tools/sstv.js', 'js/tools/soundpaper.js', 'js/tools/vault.js', 'js/tools/codebreaker.js',
-  'assets/icon.svg', 'assets/icon-192.png', 'assets/icon-512.png',
+  'js/tools/enigma.js', 'js/tools/sstv.js', 'js/tools/soundpaper.js', 'js/tools/vault.js', 'js/tools/codebreaker.js', 'js/tools/about.js',
+  'assets/icon.svg', 'assets/dev.jpg', 'assets/icon-192.png', 'assets/icon-512.png',
   'assets/fonts/SpecialElite-Regular.ttf', 'assets/fonts/CourierPrime-Regular.ttf', 'assets/fonts/CourierPrime-Bold.ttf',
   'assets/fonts/VT323-Regular.ttf', 'assets/fonts/ShareTechMono-Regular.ttf',
 ];

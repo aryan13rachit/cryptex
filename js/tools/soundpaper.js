@@ -2,6 +2,7 @@ import { $, ICONS, seg, bindSeg, toast, pickFile, loadImageFile, shareOrDownload
 import { soundToImage, imageToSound, toLuminance, columnToAmps, runs, bandFreq } from '../lib/soundpaper.js';
 import { startMic, decodeAudioFile, playSamples, audioCtx, oscillatorBank } from '../lib/audio.js';
 import { openCamera } from '../lib/camera.js';
+import { isNative } from '../lib/native.js';
 
 const MAX_S = 12;
 const LIVE_BANDS = 72;
@@ -126,6 +127,7 @@ export function mount(root) {
     } catch (e) { toast(e.message); }
   };
   $('#p-save', root).onclick = () => $('#paper', root).toBlob(b => shareOrDownload(b, `sound-paper-${Date.now()}.png`));
+  if (isNative()) $('#p-print', root).hidden = true; // WebView can't print; Save → share sheet covers it
   $('#p-print', root).onclick = () => {
     const url = $('#paper', root).toDataURL('image/png');
     const sheet = document.createElement('div');

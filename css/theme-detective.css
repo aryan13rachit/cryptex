@@ -58,8 +58,9 @@
   box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset, 0 8px 16px rgba(0, 0, 0, .45), 0 2px 3px rgba(0,0,0,.3);
   transition: transform .15s;
 }
-[data-theme="detective"] .card:nth-child(3n+1) { transform: rotate(-.6deg); }
-[data-theme="detective"] .card:nth-child(3n+2) { transform: rotate(.5deg); }
+[data-theme="detective"] .card { transform: rotate(var(--rot, 0deg)); }
+[data-theme="detective"] .card:nth-child(3n+1) { --rot: -.6deg; }
+[data-theme="detective"] .card:nth-child(3n+2) { --rot: .5deg; }
 [data-theme="detective"] .card:active { transform: scale(.97); }
 [data-theme="detective"] .card::before { /* folder tab */
   content: attr(data-tab); position: absolute; top: -15px; left: 10px; height: 16px; padding: 0 12px;
