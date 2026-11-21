@@ -55,6 +55,22 @@ const SOUNDS = {
       ring(c, s, { f0: rnd(2900, 3400), dur: 0.09, vol: 0.035 });
     },
     keyup(c, t) { burst(c, t, { dur: 0.018, type: 'bandpass', freq: 2400, q: 2, vol: 0.12 }); },
+    // a typebar strike while a document is being typed (lighter than a full keypress)
+    type(c, t) {
+      const s = t + rnd(0.004, 0.01);
+      burst(c, s, { dur: 0.04, type: 'bandpass', freq: rnd(1500, 2300), q: 1.3, vol: rnd(0.38, 0.55) });
+      burst(c, s, { dur: 0.05, type: 'lowpass', freq: 650, vol: 0.25 });
+      ring(c, s, { f0: rnd(150, 185), f1: 95, dur: 0.05, vol: 0.14 });
+    },
+    // margin bell
+    bell(c, t) { ring(c, t, { f0: 2637, dur: 1.1, vol: 0.09 }); ring(c, t, { f0: 5274, dur: 0.5, vol: 0.025 }); },
+    // carriage return: ratchet clicks while the carriage slides back, then a thunk
+    carriage(c, t) {
+      for (let i = 0; i < 7; i++) burst(c, t + i * 0.028, { dur: 0.01, type: 'highpass', freq: 3000, vol: 0.18 });
+      burst(c, t, { dur: 0.22, type: 'bandpass', freq: 900, q: 0.7, vol: 0.12, attack: 0.04 });
+      burst(c, t + 0.22, { dur: 0.06, type: 'lowpass', freq: 500, vol: 0.5 });
+      ring(c, t + 0.22, { f0: 120, f1: 70, dur: 0.08, vol: 0.2 });
+    },
   },
   radio: {
     keydown(c, t) {
@@ -72,7 +88,7 @@ const SOUNDS = {
   },
 };
 
-/** Play a key sound for the current theme: 'keydown' | 'keyup'. */
+/** Play a sound for the current theme: 'keydown' | 'keyup' (+ detective: 'type' | 'bell' | 'carriage'). */
 export function sfx(name) {
   if (!enabled) return;
   try {

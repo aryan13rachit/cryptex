@@ -3,7 +3,7 @@ import { $, $$, ICONS, esc, toast } from './ui.js';
 import { soundOn, setSound, sfx } from './lib/sfx.js';
 import { isNative, haptic, hapticsEnabled, setHaptics, setStatusBar, installBackButton } from './lib/native.js';
 
-export const VERSION = '2.3';
+export const VERSION = '2.4';
 
 // Each tool has a theme-specific name: [detective, radio]
 export const TOOLS = [

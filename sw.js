@@ -1,8 +1,8 @@
 // Offline cache for Cryptex. Bump VERSION when files change.
-const VERSION = 'cryptex-v6';
+const VERSION = 'cryptex-v7';
 const FILES = [
   './', 'index.html', 'manifest.webmanifest',
-  'css/app.css', 'css/theme-detective.css', 'css/theme-radio.css', 'css/enhance.css', 'css/polish.css', 'css/about.css', 'css/realism.css',
+  'css/app.css', 'css/theme-detective.css', 'css/theme-radio.css', 'css/enhance.css', 'css/polish.css', 'css/about.css', 'css/realism.css', 'css/materials.css', 'assets/tex/walnut.jpg', 'assets/tex/paper.jpg', 'assets/tex/manila.jpg', 'assets/tex/cork.jpg', 'assets/tex/brushed-light.jpg', 'assets/tex/brushed-dark.jpg', 'assets/tex/crinkle.jpg', 'assets/tex/plastic.jpg', 'assets/hw/screw-steel.svg', 'assets/hw/screw-brass.svg', 'assets/hw/reel.svg',
   'js/app.js', 'js/ui.js',
   'js/lib/classical.js', 'js/lib/enigma.js', 'js/lib/morse.js', 'js/lib/dsp.js', 'js/lib/sstv.js', 'js/lib/soundpaper.js', 'js/lib/audio.js', 'js/lib/camera.js', 'js/lib/sfx.js', 'js/lib/native.js',
   'js/worklets/processors.js',

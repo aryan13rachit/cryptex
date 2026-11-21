@@ -3,6 +3,7 @@
 // Radio Room: a vintage terminal boots into a hologram → Morse callsign on an oscilloscope → readouts.
 import { $, $$, esc, theme, ICONS, scopeColors, fitCanvas } from '../ui.js';
 import { haptic } from '../lib/native.js';
+import { sfx } from '../lib/sfx.js';
 import { textToMorse, morseTimeline } from '../lib/morse.js';
 
 const P = {
@@ -35,6 +36,42 @@ export function mount(root) {
     step();
   };
 
+  /**
+   * Typewriter: every character is a separately struck glyph with its own ink density and a slight
+   * baseline wobble; words stay unbroken when lines wrap; rhythm is human (pauses after punctuation),
+   * with key strikes, and a bell + carriage return when the line runs out.
+   */
+  const typewriter = (el, text, { speed = 55, sound = true } = {}, done) => {
+    el.textContent = '';
+    if (reduced()) { el.textContent = text; done?.(); return; }
+    const tokens = text.match(/\S+|\s+/g) || [];
+    let ti = 0, ci = 0, word = null, lastTop = null;
+    const next = () => {
+      if (ti >= tokens.length) { done?.(); return; }
+      const tok = tokens[ti];
+      if (/^\s/.test(tok)) { el.append(document.createTextNode(tok)); ti++; later(speed * rnd(0.8, 1.6), next); return; }
+      if (ci === 0) { word = document.createElement('span'); word.className = 'tw-word'; el.append(word); }
+      const ch = tok[ci];
+      const g = document.createElement('span');
+      g.className = 'tw';
+      g.textContent = ch;
+      g.style.setProperty('--ink', rnd(0.72, 1).toFixed(2));
+      g.style.setProperty('--dy', `${rnd(-0.6, 0.8).toFixed(2)}px`);
+      g.style.setProperty('--rot', `${rnd(-1.2, 1.2).toFixed(2)}deg`);
+      word.append(g);
+      // the carriage hit the margin: bell, then return
+      const top = g.offsetTop;
+      if (sound && lastTop !== null && top > lastTop + 4) { sfx('bell'); later(90, () => sfx('carriage')); }
+      lastTop = top;
+      if (sound) sfx('type');
+      ci++;
+      if (ci >= tok.length) { ti++; ci = 0; }
+      const pause = /[.,;:!?—]/.test(ch) ? speed * 3.2 : speed * rnd(0.6, 1.5);
+      later(pause, next);
+    };
+    next();
+  };
+  const rnd = (a, b) => a + Math.random() * (b - a);
   // ======================= DETECTIVE =======================
   function detective() {
     const fields = [['Name', P.name], ['Alias', 'The Codebreaker'], ['Occupation', 'Developer of Cryptex'], ['First offence', 'Childhood — caught reading codes'], ['Status', 'At large · still solving']];
@@ -81,7 +118,7 @@ export function mount(root) {
     const folder = $('#folder', root), cover = $('#cover', root), dds = $$('.dz-fields dd', root);
     const fillFields = done => {
       let k = 0;
-      const next = () => k < fields.length ? typeInto(dds[k], fields[k][1], 18, () => { k++; later(60, next); }) : done?.();
+      const next = () => k < fields.length ? typewriter(dds[k], fields[k][1], { speed: 48 }, () => { k++; later(200, () => { sfx('carriage'); later(380, next); }); }) : done?.();
       next();
     };
     const stamp = () => { $('#stamp', root).classList.add('in'); haptic('medium'); };
@@ -97,13 +134,13 @@ export function mount(root) {
       svg.innerHTML = $$('[data-pin="note"]', board).map((n, i) => {
         const [x, y] = pt(n), mx = (hx + x) / 2, my = (hy + y) / 2 + Math.hypot(x - hx, y - hy) * 0.08;
         const len = Math.hypot(x - hx, y - hy) * 1.05;
-        return `<path d="M${hx},${hy} Q${mx},${my} ${x},${y}" style="--len:${len};animation-delay:${animate ? i * 0.12 : 0}s" class="${animate ? 'draw' : ''}"/>`;
+        const d = `M${hx},${hy} Q${mx},${my} ${x},${y}`, st = `--len:${len};animation-delay:${animate ? i * 0.12 : 0}s`; return `<path d="${d}" style="${st}" class="${animate ? 'draw' : ''}"/><path d="${d}" style="${st}" class="twist ${animate ? 'draw' : ''}"/>`;
       }).join('');
     };
     const showBoard = animate => {
       $('#board', root).classList.add('pinned');
       later(animate ? 450 : 0, () => drawStrings(animate));
-      typeInto($('#bio', root), P.bio, animate ? 6 : 0);
+      if (animate) typewriter($('#bio', root), P.bio, { speed: 30 }); else $('#bio', root).textContent = P.bio;
     };
     onResize = () => drawStrings(false);
     window.addEventListener('resize', onResize);

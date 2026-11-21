@@ -1,0 +1,165 @@
+/* =====================================================================
+   Materials: real textures (assets/tex) and hardware (assets/hw) on every surface.
+   Loaded last — overrides earlier flat gradients.
+   ===================================================================== */
+:root {
+  --tx-walnut: url(../assets/tex/walnut.jpg);
+  --tx-paper: url(../assets/tex/paper.jpg);
+  --tx-manila: url(../assets/tex/manila.jpg);
+  --tx-cork: url(../assets/tex/cork.jpg);
+  --tx-al: url(../assets/tex/brushed-light.jpg);
+  --tx-gun: url(../assets/tex/brushed-dark.jpg);
+  --tx-crinkle: url(../assets/tex/crinkle.jpg);
+  --tx-plastic: url(../assets/tex/plastic.jpg);
+  --hw-screw: url(../assets/hw/screw-steel.svg);
+  --hw-brass: url(../assets/hw/screw-brass.svg);
+  /* uneven rubber-stamp ink */
+  --ink-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='3' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4.2 0 0 0 -1.25'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23m)'/%3E%3C/svg%3E");
+}
+
+/* =========================== DETECTIVE =========================== */
+[data-theme="detective"] {
+  --bg:
+    radial-gradient(ellipse 95% 50% at 50% -5%, rgba(255, 210, 140, .24), transparent 62%),
+    radial-gradient(ellipse 120% 60% at 50% 115%, rgba(0, 0, 0, .6), transparent 60%),
+    var(--tx-walnut) center top / 560px auto repeat;
+}
+/* desk rail along the top, with an engraved brass nameplate held by two screws */
+[data-theme="detective"] .topbar {
+  background: linear-gradient(180deg, rgba(14, 7, 3, .55), rgba(14, 7, 3, .78)), var(--tx-walnut) center / 560px;
+  border-bottom: 3px solid #150a04; box-shadow: inset 0 -1px 0 rgba(255, 220, 170, .14), 0 8px 16px rgba(0, 0, 0, .6);
+}
+[data-theme="detective"] .brand-name { position: relative; padding: 3px 26px 2px; }
+[data-theme="detective"] .brand-name::before, [data-theme="detective"] .brand-name::after {
+  content: ''; position: absolute; top: 50%; width: 10px; height: 10px; margin-top: -5px; background: var(--hw-brass) center / contain no-repeat;
+}
+[data-theme="detective"] .brand-name::before { left: 7px; } [data-theme="detective"] .brand-name::after { right: 7px; }
+
+/* paper: real fibre texture with burnt, handled edges */
+[data-theme="detective"] .panel, [data-theme="detective"] .statement, [data-theme="detective"] .dossier, [data-theme="detective"] .note-card, [data-theme="detective"] .note-calendar {
+  background-image:
+    radial-gradient(ellipse at 0% 0%, rgba(140, 95, 40, .24), transparent 38%),
+    radial-gradient(ellipse at 100% 100%, rgba(140, 95, 40, .26), transparent 42%),
+    radial-gradient(ellipse at 100% 0%, rgba(140, 95, 40, .12), transparent 30%),
+    var(--tx-paper);
+  background-size: auto, auto, auto, 300px;
+}
+[data-theme="detective"] .statement, [data-theme="detective"] .dossier {
+  background-image: repeating-linear-gradient(180deg, transparent 0 27px, rgba(31,61,92,.11) 27px 28px),
+    radial-gradient(ellipse at 0% 0%, rgba(140, 95, 40, .2), transparent 38%), radial-gradient(ellipse at 100% 100%, rgba(140, 95, 40, .22), transparent 42%), var(--tx-paper);
+  background-size: auto, auto, auto, 300px;
+}
+[data-theme="detective"] textarea, [data-theme="detective"] textarea.out, [data-theme="detective"] .out-big, [data-theme="detective"] .align-view {
+  background-image: repeating-linear-gradient(180deg, transparent 0 23px, rgba(31, 61, 92, .15) 23px 24px), linear-gradient(rgba(255, 252, 240, .45), rgba(255, 252, 240, .45)), var(--tx-paper);
+  background-size: auto, auto, 260px; background-attachment: local, local, local;
+}
+/* manila folders and their tabs */
+[data-theme="detective"] .card, [data-theme="detective"] .card.card-about, [data-theme="detective"] .folder, [data-theme="detective"] .folder-cover {
+  background: linear-gradient(165deg, rgba(255, 245, 215, .22), rgba(110, 70, 15, .14)), var(--tx-manila) 0 0 / 300px;
+}
+[data-theme="detective"] .card::before, [data-theme="detective"] .folder::before, [data-theme="detective"] .cover-tab {
+  background: linear-gradient(180deg, rgba(255, 248, 225, .35), rgba(0,0,0,0)), var(--tx-manila) 0 0 / 300px;
+}
+/* fold crease just under the tab */
+[data-theme="detective"] .tools.grid .card { box-shadow: inset 0 9px 0 -8px rgba(110, 70, 15, .35), 0 1px 0 rgba(255,255,255,.5) inset, 0 10px 18px rgba(0,0,0,.5), 0 2px 3px rgba(0,0,0,.3); }
+/* list view: index cards on paper stock */
+[data-theme="detective"] .tools.list .card { background: linear-gradient(90deg, transparent 52px, rgba(163,34,29,.38) 52px 53.5px, transparent 53.5px), repeating-linear-gradient(180deg, transparent 0 23px, rgba(31,61,92,.13) 23px 24px), var(--tx-paper) 0 0 / 280px; }
+/* search slip */
+[data-theme="detective"] .home-search input { background: var(--tx-paper) 0 0 / 260px; }
+/* brass drawer label plates held by two screws */
+[data-theme="detective"] .group-label { position: relative; padding: 4px 30px; background: linear-gradient(180deg, rgba(255,248,220,.55), rgba(0,0,0,.12)), linear-gradient(180deg, #e9c771, #b88a35); }
+[data-theme="detective"] .group-label::before, [data-theme="detective"] .group-label::after {
+  content: ''; position: absolute; top: 50%; width: 10px; height: 10px; margin-top: -5px; background: var(--hw-brass) center / contain no-repeat;
+}
+[data-theme="detective"] .group-label::before { left: 8px; } [data-theme="detective"] .group-label::after { right: 8px; }
+/* rubber stamps: patchy ink, crisp edges */
+[data-theme="detective"] .card .card-stamp, .cover-stamp, .dz-stamp, [data-theme="detective"] .view-head .head-mark, .pick-detective .pick-stamp, .st {
+  filter: none; -webkit-mask-image: var(--ink-mask); mask-image: var(--ink-mask); -webkit-mask-size: 140px; mask-size: 140px;
+}
+/* cork board in a walnut frame */
+.board {
+  border: 14px solid transparent; border-radius: 3px;
+  border-image: var(--tx-walnut) 80 / 14px round;
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,.28)), var(--tx-cork) 0 0 / 240px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.4), inset 0 6px 14px rgba(0,0,0,.4), 0 14px 28px rgba(0,0,0,.55);
+}
+/* glossy push-pins with a needle shadow */
+.pin { background: radial-gradient(circle at 34% 28%, #fff 0 9%, #ff8a80 20%, #d32f2f 50%, #7f1010 100%); box-shadow: 0 1px 0 rgba(255,255,255,.3) inset, 3px 5px 3px rgba(0,0,0,.35); }
+.pin::after { content: ''; position: absolute; left: 9px; top: 11px; width: 7px; height: 2px; background: rgba(0,0,0,.35); transform: rotate(35deg); filter: blur(.6px); }
+/* twisted red wool: a highlight strand rides along each string */
+.strings path.twist { stroke: #ff7468; stroke-width: 1; stroke-dasharray: 2 3; filter: none; opacity: .75; }
+
+/* typewritten glyphs: struck one at a time, each with its own ink */
+.tw-word { display: inline-block; white-space: nowrap; }
+.tw { display: inline-block; opacity: var(--ink, 1); transform: translateY(var(--dy, 0)) rotate(var(--rot, 0)); text-shadow: 0 0 .5px currentColor;
+  animation: strike .14s cubic-bezier(.2, .9, .3, 1) both; }
+@keyframes strike { 0% { opacity: 0; transform: translateY(calc(var(--dy, 0px) - 3px)) scale(1.35); filter: blur(1.2px); } 55% { opacity: 1; filter: none; } 100% { opacity: var(--ink, 1); } }
+.dz-fields dd, .statement p { font-family: 'Special Elite', 'Courier Prime', monospace; font-weight: normal; }
+.dz-fields dd { font-size: 15px; color: #1a120a; }
+.statement p { font-size: 15px; line-height: 28px; color: #1a120a; }
+
+/* =========================== RADIO ROOM =========================== */
+[data-theme="radio"] {
+  --bg: radial-gradient(ellipse 100% 60% at 50% -10%, rgba(255, 255, 255, .06), transparent 60%), radial-gradient(ellipse at 50% 120%, rgba(0,0,0,.5), transparent 60%), var(--tx-crinkle) 0 0 / 240px;
+}
+/* brushed-aluminium name rail with corner screws */
+[data-theme="radio"] .topbar {
+  background:
+    var(--hw-screw) left 5px top 5px / 11px no-repeat, var(--hw-screw) right 5px top 5px / 11px no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,.4), rgba(255,255,255,0) 45%, rgba(0,0,0,.18)), var(--tx-al) 0 0 / 420px;
+}
+/* faceplates: brushed gunmetal, four Phillips screws, top-lit */
+[data-theme="radio"] .panel, [data-theme="radio"] .card, [data-theme="radio"] .sheet-panel {
+  background:
+    var(--hw-screw) left 6px top 6px / 13px no-repeat, var(--hw-screw) right 6px top 6px / 13px no-repeat,
+    var(--hw-screw) left 6px bottom 6px / 13px no-repeat, var(--hw-screw) right 6px bottom 6px / 13px no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,0) 35%, rgba(0,0,0,.18)),
+    var(--tx-gun) 0 0 / 320px;
+}
+[data-theme="radio"] .tools.list .card { background:
+    var(--hw-screw) left 5px center / 11px no-repeat, var(--hw-screw) right 5px center / 11px no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,.07), rgba(0,0,0,.18)), var(--tx-gun) 0 0 / 320px; padding-left: 22px; padding-right: 24px; }
+/* aluminium label strips */
+[data-theme="radio"] .group-label, [data-theme="radio"] .card-title, [data-theme="radio"] .view-head .head-mark {
+  background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0) 50%, rgba(0,0,0,.15)), var(--tx-al) 0 0 / 300px;
+}
+
+/* 5 mm domed LEDs: specular glint, bright die, coloured epoxy, dark holder ring, glow */
+[data-theme="radio"] .power-led, .chin-led.on, .led, [data-theme="radio"] .panel-title::before, .tapebank.run .bank-lights i {
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255,255,255,.95) 0 11%, transparent 24%),
+    radial-gradient(circle at 50% 56%, #fff 0 9%, var(--c) 34%, color-mix(in srgb, var(--c) 55%, #000) 78%, color-mix(in srgb, var(--c) 30%, #000) 100%);
+  box-shadow: 0 0 0 1.5px #0b0c0a, 0 0 0 3px #3a3d38, 0 0 10px 2px color-mix(in srgb, var(--c) 70%, transparent);
+}
+[data-theme="radio"] .power-led { --c: #ff3b1a; width: 12px; height: 12px; animation: none; }
+[data-theme="radio"] .panel-title::before { --c: #3cff7a; width: 9px; height: 9px; }
+.chin-led { width: 12px; height: 12px; background: radial-gradient(circle at 34% 28%, rgba(255,255,255,.55) 0 10%, transparent 22%), radial-gradient(circle, #1f3324, #0c140e); box-shadow: 0 0 0 1.5px #0b0c0a, 0 0 0 3px #8d8775; }
+.chin-led.on { --c: #3cff7a; box-shadow: 0 0 0 1.5px #0b0c0a, 0 0 0 3px #8d8775, 0 0 12px 3px rgba(60, 255, 122, .6); }
+.led-ok { --c: #3cff7a; } .led-warn { --c: #ffae2e; } .led-live { --c: #5cc8ff; }
+.led { width: 11px; height: 11px; }
+.tapebank.run .bank-lights i { --c: var(--lc); }
+@keyframes bank-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: .18; } }
+
+/* knurled aluminium knobs with a pointer */
+.chin-knobs i { position: relative; width: 26px; height: 26px;
+  background: radial-gradient(circle at 40% 32%, rgba(255,255,255,.7), transparent 42%), radial-gradient(circle, #d9d4c4 0 46%, transparent 47%), repeating-conic-gradient(#ece7d8 0 5deg, #8f897b 5deg 10deg);
+  box-shadow: 0 0 0 1px #5d584b, 0 3px 4px rgba(0,0,0,.45); }
+.chin-knobs i::after { content: ''; position: absolute; left: 50%; top: 4px; width: 2px; height: 8px; margin-left: -1px; background: #3a362d; border-radius: 1px; transform-origin: 50% 9px; transform: rotate(-30deg); }
+.chin-knobs i:last-child::after { transform: rotate(40deg); }
+
+/* moulded beige monitor + tape bank: plastic texture, vents, metal badge */
+.monitor, .tapebank { background: linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0) 30%, rgba(0,0,0,.16)), var(--tx-plastic) 0 0 / 260px; }
+.monitor { position: relative; }
+.monitor::before { content: ''; position: absolute; top: 6px; left: 30%; right: 30%; height: 6px; border-radius: 3px;
+  background: repeating-linear-gradient(90deg, rgba(0,0,0,.35) 0 6px, transparent 6px 10px); box-shadow: 0 1px 0 rgba(255,255,255,.5); }
+.chin-brand { flex: 0 1 auto; padding: 3px 8px; border-radius: 2px; color: #2b2a25; text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(0,0,0,.1)), var(--tx-al) 0 0 / 200px; box-shadow: 0 0 0 1px #77705f, 0 1px 2px rgba(0,0,0,.3); }
+.chin { justify-content: space-between; }
+.bezel { background: linear-gradient(180deg, #34332d, #1a1915); box-shadow: inset 0 3px 10px rgba(0,0,0,.85), inset 0 -2px 4px rgba(255,255,255,.08), 0 1px 0 rgba(255,255,255,.5); }
+/* real tape reels and the tape running between them */
+.reel { width: 84px; height: 84px; padding: 0; background: url(../assets/hw/reel.svg) center / contain no-repeat; box-shadow: none; filter: drop-shadow(0 4px 4px rgba(0,0,0,.45)); }
+.reel i, .reel::after { display: none; }
+.tapebank.run .reel { animation: reel 2.6s linear infinite; }
+.tapebank.run .reel:last-child { animation-duration: 1.9s; }
+.tapebank::after { content: ''; position: absolute; left: 60px; right: 60px; bottom: 15px; height: 2px; background: linear-gradient(180deg, #4a3220, #2a1c12); box-shadow: 0 1px 0 rgba(255,255,255,.3); }
+.bank-mid { position: relative; z-index: 1; }
