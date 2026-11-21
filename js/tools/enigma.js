@@ -1,5 +1,7 @@
 import { $, $$, esc, ICONS, copy, toast } from '../ui.js';
 import { Enigma, ROTORS, parsePlugboard } from '../lib/enigma.js';
+import { sfx } from '../lib/sfx.js';
+import { haptic } from '../lib/native.js';
 
 const L = i => String.fromCharCode(65 + ((i % 26) + 26) % 26);
 const ROWS = ['QWERTZUIO', 'ASDFGHJK', 'PYXCVBNML'];
@@ -138,14 +140,14 @@ export function mount(root) {
     const k = e.target.closest('[data-k]'); if (!k) return;
     e.preventDefault();
     lit = press(k.dataset.k); lamp(lit, true);
-    navigator.vibrate?.(8);
+    sfx('keydown'); haptic('light');
   });
-  const release = () => { if (lit) { lamp(lit, false); lit = null; } };
+  const release = () => { if (lit) { lamp(lit, false); lit = null; sfx('keyup'); } };
   keys.addEventListener('pointerup', release); keys.addEventListener('pointerleave', release); keys.addEventListener('pointercancel', release);
   const onKey = e => {
     if (e.target.matches('input, textarea, select') || e.repeat || e.ctrlKey || e.metaKey) return;
     const c = e.key.toUpperCase();
-    if (c.length === 1 && c >= 'A' && c <= 'Z') { release(); lit = press(c); lamp(lit, true); }
+    if (c.length === 1 && c >= 'A' && c <= 'Z') { release(); lit = press(c); lamp(lit, true); sfx('keydown'); }
   };
   const onKeyUp = () => release();
   document.addEventListener('keydown', onKey);

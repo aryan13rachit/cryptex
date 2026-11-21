@@ -1,192 +1,205 @@
-// Cryptex app shell: theme, routing, home (grid/list + search), settings, splash.
+// Cryptex app shell: theme, boot splash, routing, transitions, settings, home (grid/list + search).
 import { $, $$, ICONS, esc, toast } from './ui.js';
-import { installClickSounds, soundOn, setSound, sfx } from './lib/sfx.js';
+import { soundOn, setSound, sfx } from './lib/sfx.js';
 import { isNative, haptic, hapticsEnabled, setHaptics, setStatusBar, installBackButton } from './lib/native.js';
 
-export const VERSION = '2.1';
+export const VERSION = '2.2';
 
-const GROUPS = [
-  { id: 'classic', t: ['Classic ciphers', 'Cipher modules'] },
-  { id: 'signals', t: ['Signals & transmissions', 'Signal modules'] },
-  { id: 'utility', t: ['Analysis & utilities', 'Utility modules'] },
-];
-// t: [detective, radio] → [name, description]
+// Each tool has a theme-specific name: [detective, radio]
 export const TOOLS = [
-  { id: 'caesar', g: 'classic', t: [['The Caesar Shift', 'Rotate the alphabet, or crack any shift.'], ['Caesar Shift', 'Alphabet rotation with brute-force search.']] },
-  { id: 'vigenere', g: 'classic', t: [['The Vigenère Square', 'Keyword cipher with automatic key recovery.'], ['Vigenère', 'Polyalphabetic cipher and key solver.']] },
-  { id: 'enigma', g: 'classic', t: [['The Enigma', 'The wartime rotor machine — I, M3 and M4.'], ['Enigma', 'Rotor machine emulator: I, M3, M4.']] },
-  { id: 'ciphers', g: 'classic', t: [['The Cipher Cabinet', 'Atbash, Playfair, Rail Fence and seven more.'], ['Classic Ciphers', 'Ten historic algorithms in one place.']] },
-  { id: 'morse', g: 'signals', t: [['Morse Telegraph', 'Translate, play, key by hand or decode by ear.'], ['Morse', 'Encoder, sounder, key and audio decoder.']] },
-  { id: 'lightbeam', g: 'signals', t: [['The Signal Lamp', 'Flash Morse with light; read it with the camera.'], ['Optical Morse', 'Torch or screen transmitter, camera receiver.']] },
-  { id: 'sstv', g: 'signals', t: [['Slow-Scan Pictures', 'Send photographs as sound and receive them back.'], ['SSTV', 'Slow-scan TV encoder and decoder.']] },
-  { id: 'soundpaper', g: 'signals', t: [['Sound Paper', 'Print a sound as a picture; scan it to play.'], ['Sound Paper', 'Spectrogram print and optical playback.']] },
-  { id: 'codebreaker', g: 'utility', t: [['The Codebreaker', 'Frequency analysis that identifies and breaks ciphers.'], ['Cryptanalysis', 'Frequency, index of coincidence, auto-solve.']] },
-  { id: 'vault', g: 'utility', t: [['The Sealed Envelope', 'AES-256 encryption, hashes and passwords.'], ['Crypto Vault', 'AES-256-GCM, SHA hashes, passwords.']] },
-  { id: 'encoders', g: 'utility', t: [['The Telegraph Office', 'Base64, hex, binary and other encodings.'], ['Encoders', 'Base64, hex, binary, octal, decimal, URL.']] },
+  { id: 'caesar', g: 0, icon: 'caesar', t: [['The Caesar Shift', 'Rotate the alphabet — and crack any shift in seconds.'], ['Caesar Shifter', 'Alphabet rotation unit with brute-force scan.']], stamp: 'SOLVED' },
+  { id: 'vigenere', g: 0, icon: 'vigenere', t: [['The Vigenère Square', 'The "indecipherable" keyword cipher, with an automatic codebreaker.'], ['Polyalpha Unit', 'Keyword cipher. Kasiski/IoC key-recovery circuit.']], stamp: 'URGENT' },
+  { id: 'enigma', g: 0, icon: 'enigma', t: [['The Enigma', 'A faithful wartime rotor machine: I, M3 and the U-boat M4.'], ['Rotor Machine', 'Enigma I / M3 / M4 emulation with lampboard.']], stamp: 'TOP SECRET' },
+  { id: 'morse', g: 1, icon: 'morse', t: [['Morse Telegraph', 'Translate, play, tap a key, or listen and decode.'], ['Morse Keyer', 'CW encoder, sounder, straight key and audio decoder.']], stamp: 'WIRE' },
+  { id: 'lightbeam', g: 1, icon: 'lightbeam', t: [['The Signal Lamp', 'Flash Morse with the torch or screen; read it with the camera.'], ['Optical Telegraph', 'Light-beam Morse TX (torch/screen) and camera RX.']], stamp: 'NIGHT OPS' },
+  { id: 'sstv', g: 1, icon: 'sstv', t: [['Slow-Scan Pictures', 'Send photographs as sound and receive them again.'], ['SSTV Terminal', 'Slow-scan TV encoder/decoder. Martin, Scottie, Robot, PD.']], stamp: 'EVIDENCE' },
+  { id: 'soundpaper', g: 1, icon: 'soundpaper', t: [['Sound Paper', 'Print a sound as a picture. Scan the picture to hear it again.'], ['Phono-Optical Scanner', 'Audio → spectrogram print → camera playback.']], stamp: 'EXHIBIT A' },
+  { id: 'ciphers', g: 0, icon: 'ciphers', t: [['The Cipher Cabinet', 'Atbash, Playfair, Rail Fence, Affine, Bacon, tap code and more.'], ['Classic Cipher Bank', '10 historic algorithms on one selector.']], stamp: 'FILED' },
+  { id: 'encoders', g: 2, icon: 'encoders', t: [['The Telegraph Office', 'Base64, hex, binary, octal and decimal transcription.'], ['Data Encoder', 'Base64 / hex / binary / octal / decimal converter.']], stamp: 'RECEIVED' },
+  { id: 'vault', g: 2, icon: 'vault', t: [['The Sealed Envelope', 'Real AES-256 encryption with a password, and fingerprints (hashes).'], ['Crypto Vault', 'AES-256-GCM + PBKDF2. SHA hash generator.']], stamp: 'SEALED' },
+  { id: 'codebreaker', g: 2, icon: 'codebreaker', t: [['The Codebreaker', 'Letter-frequency forensics to identify and break a cipher.'], ['Cryptanalyzer', 'Frequency spectrum, index of coincidence, auto-solve.']], stamp: 'INVESTIGATE' },
 ];
+
 const COPY = {
-  detective: { hero: 'Cryptex', heroP: 'A field kit for ciphers, codes and secret signals.', nav: ['Case files', 'Personnel', 'Settings'], about: ['The Developer', 'Personnel file of the maker'], color: '#1d150f', search: 'Search the files' },
-  radio: { hero: 'CRYPTEX', heroP: 'Signal intelligence unit · all modules offline.', nav: ['Modules', 'Operator', 'Settings'], about: ['Operator Profile', 'The engineer behind the unit'], color: '#0e120f', search: 'Search modules' },
-};
-const ICON = {
-  chev: '<svg class="tool-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>',
-  search: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
-  grid: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>',
-  list: '<svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>',
+  detective: { sub: 'Bureau of Ciphers · Case Files', home: 'The Case Files', homeP: 'Pick a file from the drawer. Every tool works offline.', num: n => `Case No. ${String(n).padStart(2, '0')}`, mark: 'CONFIDENTIAL', color: '#24160d', about: ['Personnel File', 'The Developer', 'Who built this kit — and why.'], settings: 'Desk Drawer' },
+  radio: { sub: 'Signal Intelligence Unit · MK II', home: '> SELECT MODULE_', homeP: 'All modules operate offline. Valves warm.', num: n => `MOD-${String(n).padStart(2, '0')}`, mark: 'MODEL CX-07', color: '#9a9e95', about: ['OPERATOR', 'Operator Profile', 'Identify the engineer on duty.'], settings: 'Control Panel' },
 };
 
 const view = $('#view');
-let cleanup = null, current = null, headObs = null;
+let cleanup = null;
+let current = null;
+
 const ti = () => document.documentElement.dataset.theme === 'radio' ? 1 : 0;
 const themeName = () => document.documentElement.dataset.theme;
-const C = () => COPY[themeName()];
-const viewMode = () => localStorage.getItem('cryptex-view') === 'list' ? 'list' : 'grid';
+const themeCopy = () => COPY[themeName()];
 
 // ---------- Theme ----------
-function applyTheme(t, rerender = true) {
+function applyTheme(t) {
   document.documentElement.dataset.theme = t;
   localStorage.setItem('cryptex-theme', t);
   $('meta[name="theme-color"]').content = COPY[t].color;
-  setStatusBar(COPY[t].color, true);
-  $$('[data-label]').forEach((el, i) => { el.textContent = COPY[t].nav[i]; });
+  setStatusBar(COPY[t].color, t === 'detective');
+  $('#brand-sub').textContent = COPY[t].sub;
+  updateHead();
+  if (!current && location.hash.replace(/^#\/?/, '') === '') renderHome();
+  syncSettings();
   window.dispatchEvent(new CustomEvent('themechange', { detail: t }));
-  if (rerender) route(false);
 }
-$('#theme-btn').onclick = () => { applyTheme(ti() ? 'detective' : 'radio'); haptic('light'); };
-
+$('#theme-btn').onclick = () => {
+  applyTheme(ti() ? 'detective' : 'radio');
+  transition();
+  toast(ti() ? 'RADIO ROOM — ONLINE' : "The Detective's Desk");
+};
 function showPicker() {
   const p = $('#picker');
   p.hidden = false;
   $$('[data-pick]', p).forEach(b => b.onclick = () => { applyTheme(b.dataset.pick); p.hidden = true; splash(); });
 }
 
+// ---------- Boot splash ----------
 function splash() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const s = $('#splash');
-  s.className = 'splash ' + (ti() ? 'splash-radio' : 'splash-det');
-  s.innerHTML = `<b>${ti() ? 'CRYPTEX' : 'Cryptex'}</b>`;
+  const radio = ti() === 1;
+  s.className = 'splash ' + (radio ? 'splash-radio' : 'splash-det');
+  s.innerHTML = radio
+    ? `<div class="sp-crt"><div class="sp-line"></div><div class="sp-text"><b>CRYPTEX</b><span>SIGNAL INTELLIGENCE UNIT · MK II</span><em>SYSTEM READY_</em></div></div>`
+    : `<div class="sp-lamp"></div><div class="sp-text"><b>${[...'CRYPTEX'].map((c, i) => `<i style="animation-delay:${0.45 + i * 0.09}s">${c}</i>`).join('')}</b><span>Bureau of Ciphers</span></div>`;
   s.hidden = false;
-  setTimeout(() => s.classList.add('out'), 1050);
-  setTimeout(() => { s.hidden = true; s.innerHTML = ''; }, 1500);
+  let done = false;
+  const end = () => { if (done) return; done = true; s.classList.add('out'); setTimeout(() => { s.hidden = true; s.innerHTML = ''; }, 450); };
+  s.onclick = end;
+  setTimeout(end, radio ? 1900 : 1800);
 }
 
-// ---------- App bar ----------
-function setBar({ title = null, back = false } = {}) {
-  $('#back').hidden = !back;
-  const bt = $('#bar-title');
-  headObs?.disconnect(); headObs = null;
-  if (title === null) bt.innerHTML = '<span class="wordmark">CRYPTEX</span>'; else bt.textContent = title;
-  // the bar title fades in once the page's own heading scrolls away
-  const head = $('.page-head h1, .home-hero h1', view);
-  if (!head) { bt.style.opacity = '1'; return; }
-  bt.style.transition = 'opacity .2s'; bt.style.opacity = '0';
-  headObs = new IntersectionObserver(([e]) => { bt.style.opacity = e.isIntersecting ? '0' : '1'; }, { rootMargin: '-60px 0px 0px 0px' });
-  headObs.observe(head);
+// ---------- Settings sheet ----------
+function syncSettings() {
+  const sh = $('#settings');
+  if (!sh) return;
+  $('#set-title').textContent = themeCopy().settings;
+  $$('[data-set-theme]', sh).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.setTheme === themeName())));
+  $('#set-sound').checked = soundOn();
+  $('#set-haptics').checked = hapticsEnabled();
+  $$('[data-set-view]', sh).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.setView === viewMode())));
 }
-function setNav(which) {
-  $$('.bottomnav a').forEach(a => { if (a.dataset.nav === which) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-  $('.bottomnav').hidden = which === null;
-}
+function openSettings() { const sh = $('#settings'); syncSettings(); sh.hidden = false; requestAnimationFrame(() => sh.classList.add('open')); }
+function closeSettings() { const sh = $('#settings'); sh.classList.remove('open'); setTimeout(() => { sh.hidden = true; }, 250); }
+$('#settings-btn').onclick = openSettings;
+$('#settings').addEventListener('close', closeSettings);
+$('#settings').addEventListener('click', e => {
+  if (e.target.id === 'settings' || e.target.closest('[data-close]')) closeSettings();
+  const t = e.target.closest('[data-set-theme]');
+  if (t && t.dataset.setTheme !== themeName()) { applyTheme(t.dataset.setTheme); transition(); }
+  if (e.target.closest('#set-about')) { closeSettings(); location.hash = '#/about'; }
+});
+$('#set-sound').onchange = e => { setSound(e.target.checked); if (e.target.checked) sfx('keydown'); };
+$$('[data-set-view]', $('#settings')).forEach(b => b.onclick = () => { setView(b.dataset.setView); syncSettings(); });
+$('#set-haptics').onchange = e => { setHaptics(e.target.checked); haptic('medium'); };
+$('#set-version').textContent = `Cryptex ${VERSION} · ${isNative() ? 'Android app' : 'web app'}`;
 
-// ---------- Home ----------
-function toolItem(t) {
-  const [name, desc] = t.t[ti()];
-  return `<a class="tool" href="#/${t.id}" data-q="${esc((name + ' ' + desc + ' ' + t.id).toLowerCase())}">
-    <span class="tool-icon">${ICONS[t.id]}</span>
-    <span class="tool-text"><span class="tool-name">${esc(name)}</span><span class="tool-desc">${esc(desc)}</span></span>${ICON.chev}</a>`;
+// ---------- Routing ----------
+const GROUPS = [
+  ['Drawer I · Ciphers', 'RACK A — CIPHER MODULES'],
+  ['Drawer II · Signals', 'RACK B — SIGNAL MODULES'],
+  ['Drawer III · Forensics', 'RACK C — UTILITY MODULES'],
+];
+const STAMPED = new Set(['caesar', 'enigma', 'sstv', 'vault']);
+const viewMode = () => localStorage.getItem('cryptex-view') === 'list' ? 'list' : 'grid';
+function setView(v) {
+  localStorage.setItem('cryptex-view', v);
+  $$('.home-view button', view).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
+  $$('.tools', view).forEach(n => { n.classList.toggle('grid', v === 'grid'); n.classList.toggle('list', v === 'list'); });
 }
+const VIEW_ICONS = {
+  grid: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>',
+  list: '<svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h1M4 12h1M4 18h1"/></svg>',
+};
+
 function renderHome() {
-  const c = C(), mode = viewMode();
+  const c = themeCopy(), mode = viewMode();
+  let n = 0;
+  const card = t => {
+    n++;
+    const [name, sub] = t.t[ti()];
+    return `<a class="card" href="#/${t.id}" data-tab="${c.num(n).toUpperCase()}" data-q="${esc((name + ' ' + sub + ' ' + t.id).toLowerCase())}" style="--i:${n}">
+        <span class="card-icon">${ICONS[t.icon]}</span>
+        <span class="card-num">${ti() ? String(n).padStart(2, '0') : c.num(n)}</span>
+        <span class="card-title">${esc(name)}</span>
+        <span class="card-sub">${esc(sub)}</span>
+        ${STAMPED.has(t.id) ? `<span class="card-stamp">${t.stamp}</span>` : ''}
+        <svg class="card-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+      </a>`;
+  };
   view.innerHTML = `
-    <section class="home-hero"><h1>${c.hero}</h1><p>${c.heroP}</p></section>
-    <div class="home-tools">
-      <label class="search">${ICON.search}<input type="search" id="q" placeholder="${c.search}" aria-label="${c.search}" autocomplete="off"></label>
-      <div class="view-toggle" role="group" aria-label="Layout">
-        <button data-view="grid" aria-pressed="${mode === 'grid'}" aria-label="Grid view">${ICON.grid}</button>
-        <button data-view="list" aria-pressed="${mode === 'list'}" aria-label="List view">${ICON.list}</button>
+    <div class="home-intro"><h1>${c.home}</h1><p>${c.homeP}</p></div>
+    <div class="home-bar">
+      <label class="home-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+        <input type="search" id="q" placeholder="${ti() ? 'SEARCH MODULES' : 'Search the files…'}" aria-label="Search tools" autocomplete="off" spellcheck="false"></label>
+      <div class="home-view seg" role="group" aria-label="Layout">
+        <button data-view="grid" aria-pressed="${mode === 'grid'}" aria-label="Grid view">${VIEW_ICONS.grid}</button>
+        <button data-view="list" aria-pressed="${mode === 'list'}" aria-label="List view">${VIEW_ICONS.list}</button>
       </div>
     </div>
-    ${GROUPS.map(g => `<section class="group" data-group="${g.id}"><h2 class="section-label">${g.t[ti()]}</h2>
-      <div class="tools ${mode}">${TOOLS.filter(t => t.g === g.id).map(toolItem).join('')}</div></section>`).join('')}
-    <p class="empty" id="empty" hidden>Nothing matches that search.</p>
-    <section class="group" data-group="about"><h2 class="section-label">${ti() ? 'Operator' : 'About'}</h2>
-      <a class="dev-row" href="#/about" data-q="developer about rachit aryan asthana operator profile">
-        <img src="assets/dev.jpg" alt=""><span class="tool-text"><span class="tool-name">${c.about[0]}</span><span class="tool-desc">${c.about[1]}</span></span>${ICON.chev}</a>
-    </section>`;
-  $$('.view-toggle button', view).forEach(b => b.onclick = () => {
-    localStorage.setItem('cryptex-view', b.dataset.view);
-    $$('.view-toggle button', view).forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-    $$('.tools', view).forEach(el => { el.classList.remove('grid', 'list'); el.classList.add(b.dataset.view); });
-  });
+    ${GROUPS.map((g, gi) => `<section class="tool-group"><h2 class="group-label">${g[ti()]}</h2>
+      <nav class="tools ${mode}">${TOOLS.filter(t => t.g === gi).map(card).join('')}</nav></section>`).join('')}
+    <p class="home-empty" id="empty" hidden>${ti() ? 'NO MODULE MATCHES.' : 'No file matches that description.'}</p>
+    <section class="tool-group"><h2 class="group-label">${ti() ? 'OPERATOR ON DUTY' : 'Personnel'}</h2>
+      <a class="card card-about" href="#/about" data-tab="${c.about[0].toUpperCase()}" data-q="developer about rachit aryan asthana operator profile personnel">
+        <span class="card-photo"><img src="assets/dev.jpg" alt=""></span>
+        <span class="card-num">${ti() ? 'OP' : c.about[0]}</span>
+        <span class="card-title">${c.about[1]}</span>
+        <span class="card-sub">${c.about[2]}</span>
+      </a></section>
+    <p class="home-foot">${isNative() ? '' : 'Tip: install Cryptex — browser menu → <b>Install app</b>. · '}<button id="repick">Change interface</button></p>`;
+  $('#repick').onclick = showPicker;
+  $$('.home-view button', view).forEach(b => b.onclick = () => setView(b.dataset.view));
   $('#q', view).oninput = e => {
     const q = e.target.value.trim().toLowerCase();
     let any = false;
-    $$('.group', view).forEach(g => {
+    $$('.tool-group', view).forEach(g => {
       let shown = 0;
       $$('[data-q]', g).forEach(a => { const hit = !q || a.dataset.q.includes(q); a.hidden = !hit; if (hit) shown++; });
-      g.hidden = shown === 0; if (shown) any = true;
+      g.hidden = !shown; if (shown) any = true;
     });
     $('#empty', view).hidden = any;
   };
 }
 
-// ---------- Settings ----------
-function renderSettings() {
-  view.innerHTML = `
-    <header class="page-head"><h1>Settings</h1></header>
-    <h2 class="section-label">Appearance</h2>
-    <div class="settings-group">
-      <div class="theme-choices">
-        <button class="theme-choice" data-set-theme="detective" aria-pressed="${themeName() === 'detective'}"><span class="tc-preview tc-detective"><i></i></span><span class="tc-name">Detective's Desk</span></button>
-        <button class="theme-choice" data-set-theme="radio" aria-pressed="${themeName() === 'radio'}"><span class="tc-preview tc-radio"><i></i></span><span class="tc-name">Radio Room</span></button>
-      </div>
-      <div class="set-row"><span class="set-label"><b>Home layout</b><small>How tools are shown</small></span>
-        <div class="seg" data-seg="layout"><button data-v="grid" aria-pressed="${viewMode() === 'grid'}">Grid</button><button data-v="list" aria-pressed="${viewMode() === 'list'}">List</button></div></div>
-    </div>
-    <h2 class="section-label">Feedback</h2>
-    <div class="settings-group">
-      <label class="set-row"><span class="set-label"><b>Sound effects</b><small>Subtle cues on key actions</small></span><input type="checkbox" class="switch" id="set-sound" ${soundOn() ? 'checked' : ''}></label>
-      <label class="set-row"><span class="set-label"><b>Vibration</b><small>Haptic feedback on taps</small></span><input type="checkbox" class="switch" id="set-haptics" ${hapticsEnabled() ? 'checked' : ''}></label>
-    </div>
-    <h2 class="section-label">About</h2>
-    <div class="settings-group">
-      <a class="set-row" href="#/about"><span class="set-label"><b>${C().about[0]}</b><small>Rachit Aryan Asthana</small></span>${ICON.chev}</a>
-      <div class="set-row"><span class="set-label"><b>Version</b><small>Cryptex ${VERSION} · ${isNative() ? 'Android app' : 'Web app'}</small></span></div>
-    </div>`;
-  $$('[data-set-theme]', view).forEach(b => b.onclick = () => { if (b.dataset.setTheme !== themeName()) applyTheme(b.dataset.setTheme); });
-  $$('[data-seg="layout"] button', view).forEach(b => b.onclick = () => {
-    localStorage.setItem('cryptex-view', b.dataset.v);
-    $$('[data-seg="layout"] button', view).forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-  });
-  $('#set-sound', view).onchange = e => { setSound(e.target.checked); if (e.target.checked) sfx('primary'); };
-  $('#set-haptics', view).onchange = e => { setHaptics(e.target.checked); haptic('medium'); };
+function updateHead() {
+  if (!current) return;
+  const head = $('.view-head', view);
+  if (!head) return;
+  const i = TOOLS.indexOf(current);
+  $('.tool-num', head).textContent = themeCopy().num(i + 1);
+  $('h1', head).textContent = current.t[ti()][0];
+  $('p', head).textContent = current.t[ti()][1];
+  $('.head-mark', head).textContent = themeCopy().mark;
 }
 
-// ---------- Routing ----------
-function transition() { view.classList.remove('enter'); void view.offsetWidth; view.classList.add('enter'); }
+function transition() {
+  view.classList.remove('enter');
+  void view.offsetWidth;
+  view.classList.add('enter');
+}
 
-async function route(animate = true) {
+async function route() {
   const id = location.hash.replace(/^#\/?/, '').split('?')[0];
   try { cleanup?.(); } catch (e) { console.warn(e); }
   cleanup = null;
   const tool = TOOLS.find(t => t.id === id);
   current = tool || null;
-  if (animate) { window.scrollTo(0, 0); transition(); }
-
-  if (id === 'settings') { renderSettings(); setNav('settings'); setBar({ title: 'Settings' }); return; }
+  $('#back').hidden = !tool && id !== 'about';
+  window.scrollTo(0, 0);
+  transition();
   if (id === 'about') {
     view.innerHTML = '<div class="tool-body"></div>';
-    setNav('about'); setBar({ title: C().about[0] });
     const mod = await import('./tools/about.js');
     if (location.hash.replace(/^#\/?/, '') === 'about') cleanup = mod.mount($('.tool-body', view)) || null;
     return;
   }
-  if (!tool) { renderHome(); setNav('home'); setBar(); return; }
-
-  const [name, desc] = tool.t[ti()];
-  const group = GROUPS.find(g => g.id === tool.g).t[ti()];
-  view.innerHTML = `<header class="page-head"><div class="kicker">${esc(group)}</div><h1>${esc(name)}</h1><p>${esc(desc)}</p></header><div class="tool-body"></div>`;
-  setNav(null); setBar({ title: name, back: true });
+  if (!tool) { renderHome(); return; }
+  view.innerHTML = `<header class="view-head"><div class="tool-num"></div><h1></h1><p></p><span class="head-mark"></span></header><div class="tool-body"></div>`;
+  updateHead();
   try {
     const mod = await import(`./tools/${tool.id}.js`);
     if (current !== tool) return;
@@ -197,16 +210,15 @@ async function route(animate = true) {
   }
 }
 
-$('#back').onclick = () => { if (history.length > 1) history.back(); else location.hash = '#/'; };
-window.addEventListener('hashchange', () => route());
+$('#back').onclick = () => { if (history.length > 1 && location.hash) history.back(); else location.hash = '#/'; };
+window.addEventListener('hashchange', route);
 
 // ---------- Boot ----------
-installClickSounds(haptic);
 installBackButton();
 if (isNative()) document.documentElement.classList.add('native');
 const forced = new URLSearchParams(location.search).get('theme');
 const saved = COPY[forced] ? forced : localStorage.getItem('cryptex-theme');
-applyTheme(saved === 'radio' ? 'radio' : 'detective', false);
+applyTheme(saved === 'radio' ? 'radio' : 'detective');
 if (!COPY[saved]) showPicker(); else if (!forced) splash();
 route();
 
