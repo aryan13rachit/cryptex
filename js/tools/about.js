@@ -82,7 +82,7 @@ export function mount(root) {
               <div class="booking">
                 <div class="mug">
                   <div class="mug-chart">${['6′6', '6′0', '5′6', '5′0', '4′6'].map(h => `<span>${h}</span>`).join('')}</div>
-                  <canvas class="noir" data-noir="mug" role="img" aria-label="Booking photo of ${esc(P.name)}, mostly in shadow"></canvas>
+                  <canvas class="noir" data-noir="mug" role="img" aria-label="Booking photo of ${esc(P.name)}, eyes redacted, circled in red"></canvas>
                   <div class="placard"><b>${esc(P.short)}</b><span>CRYPTEX · 012 · 2026</span></div>
                 </div>
                 <dl class="dz-fields">${fields.map(([k]) => `<dt>${esc(k)}</dt><dd></dd>`).join('')}</dl>
@@ -268,8 +268,9 @@ export function mount(root) {
 }
 
 /**
- * Noir surveillance print: underexposed, crushed shadows, coarse film grain, vignette — the face
- * survives only as faint highlights (forehead, nose, cheekbone), like the data face on the terminal.
+ * Evidence print: a normal black-and-white photo (light grain, slight vignette, scuffs), with a
+ * black redaction bar over the eyes and a hand-drawn red marker circle around the face.
+ * Feature positions are in the source photo's coordinates (assets/dev.jpg is 720×900).
  */
 function drawNoir(cv) {
   const img = new Image();
@@ -278,28 +279,55 @@ function drawNoir(cv) {
     const w = cv.width = 360, h = cv.height = board ? 360 : 450;
     const ctx = cv.getContext('2d');
     const s = Math.max(w / img.width, h / img.height) * 1.08;
-    ctx.filter = 'blur(.6px)';
-    ctx.drawImage(img, (w - img.width * s) / 2, (h - img.height * s) * (board ? .3 : .45), img.width * s, img.height * s);
-    ctx.filter = 'none';
+    const ox = (w - img.width * s) / 2, oy = (h - img.height * s) * (board ? .3 : .45);
+    const P = (fx, fy) => [ox + fx * img.width * s, oy + fy * img.height * s];   // source fraction → canvas
+    ctx.drawImage(img, ox, oy, img.width * s, img.height * s);
     const d = ctx.getImageData(0, 0, w, h), p = d.data;
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       const i = (y * w + x) * 4;
       let l = (0.3 * p[i] + 0.59 * p[i + 1] + 0.11 * p[i + 2]) / 255;
-      l = Math.max(0, l - 0.24) * 1.35;                 // underexpose: only highlights survive
-      l = Math.pow(l, 1.5);
-      const vx = x / w - .5, vy = y / h - .42;
-      l *= Math.max(0, 1 - (vx * vx + vy * vy) * 2.6);  // heavy vignette
-      l += (Math.random() - .5) * 0.16;                 // coarse silver grain
-      l = Math.max(0, Math.min(1, l + 0.06));
+      l = Math.pow(Math.min(1, l * 1.12 + 0.04), 0.92);          // normal exposure, a little lift
+      const vx = x / w - .5, vy = y / h - .45;
+      l *= 1 - (vx * vx + vy * vy) * 0.9;                        // gentle vignette
+      l = Math.max(0, Math.min(1, l + (Math.random() - .5) * 0.07));   // fine grain
       const v = l * 255;
-      p[i] = v * (board ? 1.04 : 1); p[i + 1] = v * (board ? .97 : 1); p[i + 2] = v * (board ? .86 : 1); p[i + 3] = 255;
+      p[i] = v * (board ? 1.03 : 1); p[i + 1] = v * (board ? .98 : 1); p[i + 2] = v * (board ? .9 : .98); p[i + 3] = 255;
     }
     ctx.putImageData(d, 0, 0);
-    // scratches and dust on the print
-    ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = 0.7;
-    for (let k = 0; k < 5; k++) { ctx.beginPath(); const x0 = Math.random() * w; ctx.moveTo(x0, 0); ctx.lineTo(x0 + (Math.random() - .5) * 40, h); ctx.stroke(); }
-    ctx.fillStyle = 'rgba(255,255,255,.35)';
-    for (let k = 0; k < 40; k++) ctx.fillRect(Math.random() * w, Math.random() * h, Math.random() * 2, Math.random() * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,.14)'; ctx.lineWidth = .6;
+    for (let k = 0; k < 3; k++) { ctx.beginPath(); const x0 = Math.random() * w; ctx.moveTo(x0, 0); ctx.lineTo(x0 + (Math.random() - .5) * 30, h); ctx.stroke(); }
+
+    // black redaction bar across the eyes (eyes sit at ~49% height, 28–70% width of the source)
+    const [ex0, ey] = P(0.25, 0.497), [ex1] = P(0.75, 0.497);
+    const barH = (ex1 - ex0) * 0.2;
+    ctx.save();
+    ctx.translate((ex0 + ex1) / 2, ey); ctx.rotate(-0.025);
+    ctx.fillStyle = '#0b0b0b';
+    ctx.beginPath();
+    const bw = (ex1 - ex0) / 2;
+    ctx.moveTo(-bw, -barH / 2 + 1); ctx.lineTo(bw, -barH / 2); ctx.lineTo(bw - 1, barH / 2); ctx.lineTo(-bw + 1, barH / 2 + 1); ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // red marker loop around the face: wobbly, overlapping at the start, streaky ink
+    const [fcx, fcy] = P(0.5, 0.53);
+    const rx = img.width * s * 0.34, ry = img.height * s * 0.33;
+    ctx.save();
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (let pass = 0; pass < 3; pass++) {
+      ctx.strokeStyle = pass === 0 ? 'rgba(226, 30, 24, .92)' : 'rgba(255, 70, 60, .35)';
+      ctx.lineWidth = pass === 0 ? 5.5 : 2.2;
+      ctx.beginPath();
+      const a0 = -2.2 + pass * 0.05, turns = Math.PI * 2 * 1.12;
+      for (let t = 0; t <= 1.0001; t += 0.01) {
+        const a = a0 + t * turns;
+        const wob = 1 + Math.sin(a * 3 + pass) * 0.025 + Math.sin(a * 7) * 0.012 + t * 0.05;
+        const x = fcx + Math.cos(a) * rx * wob + pass * 1.2, y = fcy + Math.sin(a) * ry * wob - pass;
+        t ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
   };
   img.src = 'assets/dev.jpg';
 }
