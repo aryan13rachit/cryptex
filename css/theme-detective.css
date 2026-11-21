@@ -34,7 +34,7 @@
 
 /* Top bar: a typed label strip pinned to the desk */
 [data-theme="detective"] .topbar {
-  background: linear-gradient(180deg, rgba(36, 22, 13, .97), rgba(36, 22, 13, .88));
+  background: linear-gradient(180deg, #24160d, #2b1b10);
   border-bottom: 1px solid rgba(255, 220, 160, .12);
   box-shadow: 0 6px 18px rgba(0, 0, 0, .45);
   color: var(--paper);

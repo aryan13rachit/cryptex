@@ -1,5 +1,5 @@
-// Offline cache for Cryptex. Bump VERSION when files change.
-const VERSION = 'cryptex-v1';
+﻿// Offline cache for Cryptex. Bump VERSION when files change.
+const VERSION = 'cryptex-v2';
 const FILES = [
   './', 'index.html', 'manifest.webmanifest',
   'css/app.css', 'css/theme-detective.css', 'css/theme-radio.css',
