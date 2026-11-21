@@ -1,5 +1,5 @@
 // Offline cache for Cryptex. Bump VERSION when files change.
-const VERSION = 'cryptex-v10';
+const VERSION = 'cryptex-v11';
 const FILES = [
   './', 'index.html', 'manifest.webmanifest',
   'css/app.css', 'css/theme-detective.css', 'css/theme-radio.css', 'css/enhance.css', 'css/polish.css', 'css/about.css', 'css/realism.css', 'css/materials.css', 'css/reference.css', 'assets/tex/walnut.jpg', 'assets/tex/paper.jpg', 'assets/tex/manila.jpg', 'assets/tex/cork.jpg', 'assets/tex/brushed-light.jpg', 'assets/tex/brushed-dark.jpg', 'assets/tex/crinkle.jpg', 'assets/tex/plastic.jpg', 'assets/hw/screw-steel.svg', 'assets/hw/screw-brass.svg', 'assets/hw/reel.svg',

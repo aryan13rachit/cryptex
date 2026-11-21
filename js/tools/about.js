@@ -197,9 +197,8 @@ export function mount(root) {
           <div class="chin"><span class="chin-brand">CRYPTEX · OPERATOR TERMINAL</span><span class="chin-knobs"><i></i><i></i></span><span class="chin-led" id="led"></span></div>
         </div>
         <div class="tapebank" aria-hidden="true">
-          <div class="reel"><i></i></div>
+          ${tapeDeckSVG()}
           <div class="bank-mid"><div class="bank-lights">${Array.from({ length: 12 }, (_, k) => `<i style="animation-delay:${(k * 0.37) % 1.9}s;animation-duration:${1.1 + (k * 0.29) % 1.4}s"></i>`).join('')}</div><span>MEMORY BANK 012</span></div>
-          <div class="reel"><i></i></div>
         </div>
 
         <div class="radio-sections" id="sections">
@@ -331,6 +330,92 @@ function drawNoir(cv) {
   };
   img.src = 'assets/dev-anon.jpg';
 }
+/**
+ * Reel-to-reel transport drawn to scale (modelled on 1970s decks such as the Sony TC-630):
+ * smoked-plastic reels with three windows over glossy tape packs, white hubs, and a tape path that
+ * leaves each pack on a true tangent, wraps the guide posts and crosses the head block,
+ * capstan and pinch roller. Supply (left) is full, take-up (right) nearly empty.
+ */
+function tapeDeckSVG() {
+  const W = 400, H = 200, R = 64, rg = 5, tapeY = 168;
+  const L = { x: 80, y: 80, pack: 58 }, Rr = { x: 320, y: 80, pack: 33 };
+  const GL = { x: 150, y: tapeY - rg }, GR = { x: 250, y: tapeY - rg };
+  // tangent from external point P to circle (c, r); side = +1 picks the tangent point to the right
+  const tangent = (c, r, P, side) => {
+    const dx = P.x - c.x, dy = P.y - c.y, d = Math.hypot(dx, dy), a = Math.atan2(dy, dx), o = Math.acos(r / d);
+    const t1 = [c.x + r * Math.cos(a + o), c.y + r * Math.sin(a + o)], t2 = [c.x + r * Math.cos(a - o), c.y + r * Math.sin(a - o)];
+    return (t1[0] - t2[0]) * side > 0 ? t1 : t2;
+  };
+  const pL = { x: GL.x - rg, y: GL.y }, pR = { x: GR.x + rg, y: GR.y };
+  const tL = tangent(L, L.pack, pL, 1), tR = tangent(Rr, Rr.pack, pR, -1);
+  const f = n => n.toFixed(2);
+  const tape = `M${f(tL[0])},${f(tL[1])} L${f(pL.x)},${f(pL.y)} A${rg},${rg} 0 0 0 ${GL.x},${tapeY} L${GR.x},${tapeY} A${rg},${rg} 0 0 0 ${f(pR.x)},${f(pR.y)} L${f(tR[0])},${f(tR[1])}`;
+  // reel flange with three kidney windows (annular sectors) cut out
+  const flange = () => {
+    let d = `M${R},0 A${R},${R} 0 1 1 ${-R},0 A${R},${R} 0 1 1 ${R},0 Z`;
+    for (let k = 0; k < 3; k++) {
+      const a0 = (k * 120 - 33) * Math.PI / 180, a1 = (k * 120 + 33) * Math.PI / 180, r0 = 24, r1 = R - 6;
+      const P = (r, a) => `${f(r * Math.cos(a))},${f(r * Math.sin(a))}`;
+      d += ` M${P(r0, a0)} L${P(r1, a0)} A${r1},${r1} 0 0 1 ${P(r1, a1)} L${P(r0, a1)} A${r0},${r0} 0 0 0 ${P(r0, a0)} Z`;
+    }
+    return d;
+  };
+  const packRings = r => Array.from({ length: Math.floor((r - 20) / 2.2) }, (_, i) => `<circle r="${f(20 + i * 2.2)}" fill="none" stroke="rgba(255,235,210,${(0.025 + ((i * 7) % 5) * 0.012).toFixed(3)})" stroke-width=".7"/>`).join('');
+  const reel = (c, cls) => `
+    <g transform="translate(${c.x} ${c.y})">
+      <circle r="${R + 1.5}" fill="rgba(0,0,0,.35)" transform="translate(2 3)" filter="url(#tdBlur)"/>
+      <circle r="${c.pack}" fill="url(#tdPack)"/>${packRings(c.pack)}
+      <circle r="${c.pack}" fill="url(#tdSheen)"/>
+      <g class="td-reel ${cls}">
+        <path d="${flange()}" fill="url(#tdSmoke)" fill-rule="evenodd" stroke="rgba(255,255,255,.55)" stroke-width=".8"/>
+        <circle r="${R - 1.2}" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1"/>
+        <circle r="19" fill="url(#tdHub)" stroke="#9c9a92" stroke-width=".8"/>
+        ${[0, 120, 240].map(a => `<rect x="-2.6" y="-15" width="5.2" height="6" rx="1" fill="#2b2a27" transform="rotate(${a})"/>`).join('')}
+        <circle r="6.5" fill="url(#tdChrome)" stroke="#555" stroke-width=".6"/>
+        ${[60, 180, 300].map(a => `<rect x="-1.4" y="-9.5" width="2.8" height="4" rx=".8" fill="url(#tdChrome)" transform="rotate(${a})"/>`).join('')}
+      </g>
+      <path d="M${-R * .62},${-R * .55} A${R * .82},${R * .82} 0 0 1 ${R * .35},${-R * .78}" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2.5" stroke-linecap="round"/>
+    </g>`;
+  const screw = (x, y) => `<image href="assets/hw/screw-steel.svg" x="${x - 5}" y="${y - 5}" width="10" height="10"/>`;
+  return `
+  <svg class="td" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <pattern id="tdAl" patternUnits="userSpaceOnUse" width="400" height="400"><image href="assets/tex/brushed-light.jpg" width="400" height="400" preserveAspectRatio="none"/></pattern>
+      <linearGradient id="tdPlateLight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient>
+      <radialGradient id="tdPack"><stop offset=".3" stop-color="#3b2a1d"/><stop offset=".75" stop-color="#2b1d13"/><stop offset="1" stop-color="#1c120b"/></radialGradient>
+      <linearGradient id="tdSheen" x1="0" y1="0" x2="1" y2="1"><stop offset=".25" stop-color="#fff" stop-opacity="0"/><stop offset=".45" stop-color="#ffe9d0" stop-opacity=".16"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <radialGradient id="tdSmoke" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#e8ecef" stop-opacity=".42"/><stop offset=".7" stop-color="#c9ced3" stop-opacity=".24"/><stop offset="1" stop-color="#9aa0a6" stop-opacity=".38"/></radialGradient>
+      <radialGradient id="tdHub" cx=".4" cy=".35"><stop offset="0" stop-color="#ffffff"/><stop offset=".7" stop-color="#e6e3da"/><stop offset="1" stop-color="#bdb9ae"/></radialGradient>
+      <radialGradient id="tdChrome" cx=".35" cy=".3"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#a9ada6"/><stop offset="1" stop-color="#4f524d"/></radialGradient>
+      <linearGradient id="tdTape" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a281b"/><stop offset=".5" stop-color="#4a3424"/><stop offset="1" stop-color="#3a281b"/></linearGradient>
+      <linearGradient id="tdHeadCover" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3d38"/><stop offset="1" stop-color="#1c1e1b"/></linearGradient>
+      <linearGradient id="tdHead" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6f736c"/><stop offset=".45" stop-color="#f2f3ef"/><stop offset="1" stop-color="#7c8079"/></linearGradient>
+      <radialGradient id="tdRubber" cx=".38" cy=".32"><stop offset="0" stop-color="#4a4a4a"/><stop offset=".6" stop-color="#191919"/><stop offset="1" stop-color="#0a0a0a"/></radialGradient>
+      <filter id="tdBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter>
+    </defs>
+    <!-- deck plate -->
+    <rect x="1" y="1" width="${W - 2}" height="${H - 2}" rx="8" fill="url(#tdAl)" stroke="#5c5f58" stroke-width="1.5"/>
+    <rect x="1" y="1" width="${W - 2}" height="${H - 2}" rx="8" fill="url(#tdPlateLight)"/>
+    <rect x="3" y="3" width="${W - 6}" height="${H - 6}" rx="7" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1"/>
+    ${screw(12, 12)}${screw(W - 12, 12)}${screw(12, H - 12)}${screw(W - 12, H - 12)}
+    <!-- head block -->
+    <rect x="${GL.x + 12}" y="${tapeY - 26}" width="${GR.x - GL.x - 24}" height="34" rx="4" fill="url(#tdHeadCover)" stroke="#0c0d0b"/>
+    ${[175, 200, 225].map(x => `<rect x="${x - 6}" y="${tapeY - 9}" width="12" height="10" rx="2.5" fill="url(#tdHead)" stroke="#3a3c38" stroke-width=".6"/><rect x="${x - .4}" y="${tapeY - 9}" width=".8" height="10" fill="#222"/>`).join('')}
+    <!-- guide posts -->
+    ${[GL, GR].map(g => `<circle cx="${g.x}" cy="${g.y}" r="${rg + 2.5}" fill="#2a2c28"/><circle cx="${g.x}" cy="${g.y}" r="${rg}" fill="url(#tdChrome)"/>`).join('')}
+    <!-- capstan + pinch roller -->
+    <circle cx="${GR.x - 8}" cy="${tapeY + 13}" r="9" fill="url(#tdRubber)" stroke="#000" stroke-width=".6"/>
+    <circle cx="${GR.x - 8}" cy="${tapeY + 13}" r="2.2" fill="url(#tdChrome)"/>
+    <circle cx="${GR.x - 8}" cy="${tapeY - 4}" r="2.6" fill="url(#tdChrome)" stroke="#333" stroke-width=".5"/>
+    <!-- reels -->
+    ${reel(L, 'td-supply')}${reel(Rr, 'td-takeup')}
+    <!-- tape -->
+    <path d="${tape}" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="3.2" transform="translate(.8 1.4)"/>
+    <path d="${tape}" fill="none" stroke="url(#tdTape)" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="${tape}" fill="none" stroke="rgba(255,225,190,.22)" stroke-width=".6"/>
+  </svg>`;
+}
+
 /**
  * Curved tube: the glass is convex, so every edge bows outward. Built as a clip-path in pixels.
  */
