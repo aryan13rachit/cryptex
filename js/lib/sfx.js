@@ -15,14 +15,19 @@ function noise(c) {
   }
   const s = c.createBufferSource(); s.buffer = noiseBuf; return s;
 }
-function out(c, vol) { const g = c.createGain(); g.gain.value = vol; g.connect(c.destination); return g; }
+// One quiet master bus for everything
+let master = null;
+function dest(c) {
+  if (!master || master.context !== c) { master = c.createGain(); master.gain.value = 0.42; master.connect(c.destination); }
+  return master;
+}
 
 /** Filtered noise burst. */
 function burst(c, t, { dur = 0.03, type = 'bandpass', freq = 3000, q = 1, vol = 0.4, attack = 0.001, offset = 0 }) {
   const n = noise(c), f = c.createBiquadFilter(), g = c.createGain();
   f.type = type; f.frequency.value = freq; f.Q.value = q;
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + attack); g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
-  n.connect(f).connect(g).connect(c.destination);
+  n.connect(f).connect(g).connect(dest(c));
   n.start(t, offset || Math.random() * 0.5); n.stop(t + dur + 0.02);
 }
 /** Pitched blip with exponential pitch glide. */
@@ -30,7 +35,7 @@ function tone(c, t, { f0 = 800, f1 = f0, dur = 0.08, type = 'sine', vol = 0.2, a
   const o = c.createOscillator(), g = c.createGain();
   o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(Math.max(1, f1), t + dur);
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + attack); g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
-  o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + 0.02);
+  o.connect(g).connect(dest(c)); o.start(t); o.stop(t + dur + 0.02);
 }
 
 const SOUNDS = {
@@ -91,20 +96,17 @@ export function sfx(name) {
   } catch { /* audio unavailable */ }
 }
 
-/** Wire every clickable control in the app to a sound + haptic tick. */
+/**
+ * Sounds only for meaningful actions: primary buttons, opening a tool, switching tabs/sections.
+ * Ordinary buttons, keys and fields stay silent.
+ */
 export function installClickSounds(haptic) {
   document.addEventListener('pointerdown', e => {
-    const el = e.target.closest('button, .card, a.brand, select, input[type=checkbox], [data-sfx]');
+    const el = e.target.closest('.btn.primary, .tool, .dev-row, .bottomnav a, .seg button, [data-sfx]');
     if (!el || el.disabled || el.closest('[data-nosfx]')) return;
-    let name = el.dataset.sfx;
-    if (!name) {
-      if (el.classList.contains('card')) name = 'open';
-      else if (el.id === 'back') name = 'back';
-      else if (el.closest('.seg')) name = 'tab';
-      else if (el.classList.contains('primary')) name = 'primary';
-      else name = 'click';
-    }
+    if (el.matches('.seg button') && el.getAttribute('aria-pressed') === 'true') return;
+    const name = el.dataset.sfx || (el.matches('.tool, .dev-row') ? 'open' : el.matches('.btn.primary') ? 'primary' : 'tab');
     sfx(name);
-    haptic?.(name === 'primary' || name === 'open' ? 'medium' : 'light');
+    haptic?.(name === 'primary' ? 'medium' : 'light');
   }, { passive: true, capture: true });
 }

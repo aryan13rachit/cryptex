@@ -1,216 +1,154 @@
-// "About the developer" — detective: a case file slams onto the desk and opens;
-// radio: a vintage computer powers on and projects a green hologram.
-import { $, $$, esc, theme, ICONS } from '../ui.js';
+// About the developer.
+// Detective: a personnel file slams onto the desk and opens to a typeset dossier.
+// Radio Room: an operator terminal powers up and projects a green hologram.
+import { $, esc, theme, ICONS } from '../ui.js';
 import { sfx } from '../lib/sfx.js';
 import { haptic } from '../lib/native.js';
 
-const NAME = 'Rachit Aryan Asthana';
-const FIELDS = [
-  ['Subject', NAME],
-  ['Occupation', 'Developer of Cryptex · amateur codebreaker'],
-  ['First offence', 'Childhood — caught falling for codes, ciphers and secret messages'],
-  ['Known influences', 'Sherlock Holmes · Hercule Poirot · The Da Vinci Code'],
-  ['Record', 'Jane Street puzzles — SOLVED'],
-  ['', '“The Secret: A Treasure Hunt” — investigation ongoing'],
-  ['Daily habit', 'The Minute Cryptic — solved every day'],
-];
-const BIO = `I have loved cryptography and ciphers since I was a child. It started with detective stories — Sherlock Holmes, Hercule Poirot, and the codes hidden all through The Da Vinci Code — and never stopped. I've solved Jane Street puzzles, gone hunting for the treasures of “The Secret”, and start my days with the Minute Cryptic. Cryptex is the kit I always wanted: every cipher, signal and secret in one place.`;
-
+const P = {
+  name: 'Rachit Aryan Asthana',
+  role: 'Developer of Cryptex · Codebreaker',
+  bio: 'I have loved cryptography and ciphers since I was a child. It started with detective stories — Sherlock Holmes, Hercule Poirot, and the codes woven through The Da Vinci Code — and it never stopped. I have solved Jane Street puzzles, gone hunting for the treasures of “The Secret”, and I start most days with the Minute Cryptic. Cryptex is the kit I always wanted: every cipher, signal and secret in one place.',
+  influences: [
+    { title: 'Sherlock Holmes', by: 'Sir Arthur Conan Doyle', kind: 'Stories & films' },
+    { title: 'Hercule Poirot', by: 'Agatha Christie', kind: 'Novels & films' },
+    { title: 'The Da Vinci Code', by: 'Dan Brown', kind: 'Novel & film' },
+  ],
+  record: [
+    { title: 'Jane Street puzzles', note: 'Monthly puzzle challenges', status: 'solved', label: 'Solved' },
+    { title: 'The Secret: A Treasure Hunt', note: 'Byron Preiss’s buried casques', status: 'open', label: 'Ongoing' },
+    { title: 'The Minute Cryptic', note: 'One cryptic clue a day', status: 'daily', label: 'Daily' },
+  ],
+};
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function mount(root) {
-  let timers = [], alive = true, raf = 0;
-  const later = (ms, fn) => { const t = setTimeout(() => alive && fn(), ms); timers.push(t); return t; };
-  const clear = () => { timers.forEach(clearTimeout); timers = []; cancelAnimationFrame(raf); };
+  let timers = [];
+  const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const clear = () => { timers.forEach(clearTimeout); timers = []; document.getElementById('app')?.classList.remove('shake'); };
 
-  /** Type text into el, one character at a time, with key sounds. */
-  const typeInto = (el, text, speed, done, sound = true) => {
+  const typeInto = (el, text, speed, done) => {
     if (reduced()) { el.textContent = text; done?.(); return; }
     let i = 0;
-    const step = () => {
-      el.textContent = text.slice(0, ++i);
-      if (sound && text[i - 1] !== ' ') sfx('type');
-      if (i < text.length) later(speed, step); else done?.();
-    };
+    const step = () => { el.textContent = text.slice(0, ++i); i < text.length ? later(speed, step) : done?.(); };
     step();
-  };
-  const typeSeq = (items, speed, done) => {
-    const next = k => k < items.length ? typeInto(items[k][0], items[k][1], speed, () => later(90, () => next(k + 1))) : done?.();
-    next(0);
   };
 
   // ---------------- DETECTIVE ----------------
   function detective() {
     root.innerHTML = `
       <div class="about about-det">
-        <div class="det-stage" id="stage">
+        <div class="det-stage">
           <div class="folder" id="folder">
-            <div class="dossier">
-              <div class="dossier-top">
-                <figure class="polaroid"><img src="assets/dev.jpg" alt="Photo of ${esc(NAME)}"><figcaption>R. A. A.</figcaption><span class="clip"></span></figure>
-                <div class="dossier-id">
-                  <div class="dossier-kicker">Bureau of Ciphers · Personnel</div>
-                  <h1 class="dossier-name">${esc(NAME)}</h1>
-                  <div class="dossier-file">FILE No. 12 · CLEARANCE: CODEBREAKER</div>
+            <article class="dossier" id="dossier">
+              <header class="dz-head rv"><span>Personnel file</span><span>No. 012</span></header>
+              <div class="dz-hero rv">
+                <figure class="dz-photo"><img src="assets/dev.jpg" alt="Portrait of ${esc(P.name)}"><figcaption>Fig. 1 — The subject</figcaption></figure>
+                <div class="dz-id">
+                  <div class="kicker">Subject</div>
+                  <h1>${esc(P.name)}</h1>
+                  <p class="dz-role">${esc(P.role)}</p>
+                  <dl class="dz-facts"><dt>Status</dt><dd>Active</dd><dt>Speciality</dt><dd>Ciphers &amp; puzzles</dd><dt>On the case</dt><dd>Since childhood</dd></dl>
                 </div>
               </div>
-              <dl class="dossier-fields">${FIELDS.map(([k]) => `<dt>${esc(k)}</dt><dd></dd>`).join('')}</dl>
-              <p class="dossier-bio"></p>
-              <p class="dossier-note">Investigator's note: subject cannot walk past a puzzle without solving it. Built this kit so you can't either.</p>
-              <span class="stamp-ident">IDENTIFIED</span>
-            </div>
+              <section class="dz-sec rv"><h2>Statement</h2><p class="dz-bio">${esc(P.bio)}</p></section>
+              <section class="dz-sec rv"><h2>Known influences</h2><ul class="dz-list">${P.influences.map(i => `<li><span><b>${esc(i.title)}</b><small>${esc(i.by)}</small></span><span class="meta">${esc(i.kind)}</span></li>`).join('')}</ul></section>
+              <section class="dz-sec rv"><h2>Case record</h2><ul class="dz-list">${P.record.map(r => `<li><span>${esc(r.title)}<small>${esc(r.note)}</small></span><i class="st st-${r.status}">${esc(r.label)}</i></li>`).join('')}</ul></section>
+              <footer class="dz-foot rv"><div><span class="dz-sign">R. A. Asthana</span><small>Signature of subject</small></div><span class="dz-stamp" id="stamp">Identified</span></footer>
+            </article>
             <div class="folder-cover" id="cover">
-              <span class="cover-tab">PERSONNEL FILE</span>
-              <div class="cover-label">SUBJECT:<br><b>R. A. ASTHANA</b><br><small>FILE No. 12</small></div>
-              <span class="cover-stamp">CLASSIFIED</span>
-              <span class="cover-string"></span>
+              <div class="cover-label"><small>Personnel file</small><strong>R. A. Asthana</strong><span>No. 012 · Bureau of Ciphers</span></div>
+              <span class="cover-stamp">Confidential</span>
             </div>
           </div>
-          <div class="dust" id="dust"></div>
         </div>
-        <div class="btns" style="justify-content:center"><button class="btn" id="replay">${ICONS.reset}Replay</button></div>
+        <div class="about-actions"><button class="btn" id="replay">${ICONS.reset}Replay</button></div>
       </div>`;
-    const folder = $('#folder', root), cover = $('#cover', root), stage = $('#stage', root);
-    const dds = $$('.dossier-fields dd', root);
-    const finish = () => {
-      typeSeq(FIELDS.map(([, v], i) => [dds[i], v]), 16, () => {
-        typeInto($('.dossier-bio', root), BIO, 7, () => {
-          later(200, () => { $('.dossier-note', root).classList.add('show'); });
-          later(700, () => { $('.stamp-ident', root).classList.add('show'); sfx('stamp'); haptic('heavy'); later(250, () => sfx('ding')); });
-        });
-      });
-    };
-    if (reduced()) {
-      folder.classList.add('landed', 'open'); cover.hidden = true;
-      FIELDS.forEach(([, v], i) => { dds[i].textContent = v; });
-      $('.dossier-bio', root).textContent = BIO;
-      $('.dossier-note', root).classList.add('show'); $('.stamp-ident', root).classList.add('show');
-      return;
-    }
-    // 1. slam
-    later(150, () => folder.classList.add('slam'));
-    later(150 + 330, () => {
+    const folder = $('#folder', root), cover = $('#cover', root), dossier = $('#dossier', root);
+    if (reduced()) { folder.classList.add('landed'); cover.hidden = true; dossier.classList.add('revealed'); $('#stamp', root).classList.add('in'); return; }
+    later(120, () => folder.classList.add('slam'));
+    later(120 + 310, () => {
       sfx('slam'); haptic('heavy');
-      document.getElementById('app').classList.add('shake');
-      later(450, () => document.getElementById('app').classList.remove('shake'));
-      const dust = $('#dust', root);
-      dust.innerHTML = Array.from({ length: 18 }, (_, i) => {
-        const side = i % 2 ? 1 : -1, x = side * (30 + Math.random() * 60), y = -10 - Math.random() * 50;
-        return `<i style="left:${i % 2 ? 92 : 8}%;top:${55 + Math.random() * 40}%;--dx:${x}px;--dy:${y}px;--s:${0.6 + Math.random()}"></i>`;
-      }).join('');
-      dust.classList.add('go');
+      const app = document.getElementById('app');
+      app.classList.add('shake'); later(380, () => app.classList.remove('shake'));
     });
-    // 2. classified stamp thump, 3. open the cover
-    later(1100, () => { cover.classList.add('stamped'); sfx('stamp'); haptic('medium'); });
-    later(1900, () => { cover.classList.add('open'); sfx('open'); });
-    later(2650, () => { cover.hidden = true; finish(); });
+    later(1250, () => cover.classList.add('open'));
+    later(1700, () => dossier.classList.add('revealed'));
+    later(2150, () => { cover.hidden = true; });
+    later(2600, () => { $('#stamp', root).classList.add('in'); sfx('stamp'); haptic('medium'); });
   }
 
   // ---------------- RADIO ----------------
   function radio() {
     root.innerHTML = `
       <div class="about about-radio">
-        <div class="monitor" id="monitor">
-          <div class="bezel">
-            <div class="crt" id="crt">
-              <div class="crt-content">
-                <pre class="boot" id="boot"></pre>
-                <div class="holo" id="holo"><canvas id="holo-cv" width="300" height="300" aria-label="Hologram of ${esc(NAME)}"></canvas><div class="holo-scan"></div><div class="holo-base"></div></div>
-                <div class="term"><div class="term-name" id="tname"></div><pre id="term"></pre></div>
-              </div>
-              <div class="crt-line"></div>
-              <div class="crt-glass"></div>
+        <div class="terminal">
+          <div class="crt" id="crt">
+            <div class="crt-content">
+              <pre class="boot" id="boot"></pre>
+              <div class="holo" id="holo"><canvas id="holo-cv" width="320" height="320" role="img" aria-label="Hologram portrait of ${esc(P.name)}"></canvas><div class="holo-scan"></div></div>
+              <div class="crt-id"><div class="crt-name" id="cname"></div><div class="crt-role" id="crole"></div></div>
             </div>
+            <div class="crt-line"></div><div class="crt-glass"></div>
           </div>
-          <div class="chin">
-            <span class="chin-brand">CRYPTEX · OPERATOR TERMINAL</span>
-            <span class="chin-knobs"><i></i><i></i></span>
-            <span class="chin-led" id="led"></span>
-          </div>
+          <div class="terminal-chin"><span>CRYPTEX · OPERATOR TERMINAL</span><i id="led"></i></div>
         </div>
-        <div class="monitor-stand"></div>
-        <section class="panel" style="margin-top:18px"><h2 class="panel-title">Transmission log</h2><p class="term-bio" id="tbio"></p></section>
-        <div class="btns" style="justify-content:center"><button class="btn" id="replay">${ICONS.reset}Reboot</button></div>
+        <div class="radio-sections" id="sections">
+          <div class="section-label rv">Profile</div>
+          <section class="panel rv"><p class="io-bio">${esc(P.bio)}</p></section>
+          <div class="section-label rv">Influences</div>
+          <section class="panel rv"><ul class="io-list">${P.influences.map(i => `<li><div class="io-main"><b>${esc(i.title)}</b><small>${esc(i.by)}</small></div><span class="io-tag">${esc(i.kind.toUpperCase())}</span></li>`).join('')}</ul></section>
+          <div class="section-label rv">Puzzle log</div>
+          <section class="panel rv"><ul class="io-list">${P.record.map(r => `<li><div class="io-main"><b>${esc(r.title)}</b><small>${esc(r.note)}</small></div><span class="io-status io-${r.status}">${esc(r.label.toUpperCase())}</span></li>`).join('')}</ul></section>
+        </div>
+        <div class="about-actions"><button class="btn" id="replay">${ICONS.reset}Reboot</button></div>
       </div>`;
-    const crt = $('#crt', root), led = $('#led', root), holo = $('#holo', root);
+    const crt = $('#crt', root), holo = $('#holo', root), boot = $('#boot', root);
     drawHologram($('#holo-cv', root));
-    const boot = ['CRYPTEX BIOS v2.6  (C) BUREAU OF CIPHERS', 'MEMORY TEST ........ 640K OK', 'ROTOR BANK ......... ONLINE', 'LOADING OPERATOR PROFILE ▒▒▒▒▒▒▒▒▒▒ 100%'];
-    const lines = [
-      '> CLEARANCE  : CODEBREAKER',
-      '> ORIGIN     : HOOKED ON CIPHERS SINCE CHILDHOOD',
-      '> INFLUENCES : SHERLOCK HOLMES / HERCULE POIROT',
-      '               THE DA VINCI CODE',
-      '> LOG        : JANE STREET PUZZLES ....... SOLVED',
-      '> LOG        : THE SECRET (TREASURE HUNT)  ACTIVE',
-      '> LOG        : MINUTE CRYPTIC ............ DAILY',
-      '> STATUS     : BUILDING CRYPTEX_',
-    ];
+    const bootText = 'CRYPTEX BIOS 2.1\nROTOR BANK ........ OK\nLOADING OPERATOR PROFILE ...';
+    const finish = () => { $('#sections', root).classList.add('revealed'); };
     if (reduced()) {
-      led.classList.add('on'); crt.classList.add('on', 'ready'); holo.classList.add('show');
-      $('#boot', root).textContent = boot.join('\n'); $('#tname', root).textContent = NAME.toUpperCase();
-      $('#term', root).textContent = lines.join('\n'); $('#tbio', root).textContent = BIO;
-      return;
+      $('#led', root).classList.add('on'); crt.classList.add('on', 'ready'); holo.classList.add('show');
+      boot.textContent = bootText; boot.classList.add('dim'); $('#cname', root).textContent = P.name.toUpperCase(); $('#crole', root).textContent = 'DEVELOPER · CODEBREAKER';
+      finish(); return;
     }
-    later(250, () => { led.classList.add('on'); sfx('boot'); haptic('medium'); crt.classList.add('on'); });
-    later(1200, () => {
-      crt.classList.add('ready');
-      const bootEl = $('#boot', root);
-      let k = 0;
-      const nextBoot = () => {
-        if (k >= boot.length) {
-          later(250, () => {
-            bootEl.classList.add('dim'); holo.classList.add('show'); sfx('ding'); haptic('light');
-            later(900, () => typeInto($('#tname', root), NAME.toUpperCase(), 45, () => {
-              const term = $('#term', root);
-              let n = 0;
-              const nextLine = () => {
-                if (n >= lines.length) { later(200, () => typeInto($('#tbio', root), BIO, 6, null, false)); return; }
-                const pre = term.textContent;
-                const span = document.createElement('span'); term.append(span);
-                typeInto(span, lines[n] + (n < lines.length - 1 ? '\n' : ''), 12, () => { n++; later(80, nextLine); });
-                void pre;
-              };
-              nextLine();
-            }));
-          });
-          return;
-        }
-        const line = document.createElement('span'); bootEl.append(line);
-        typeInto(line, boot[k] + '\n', 6, () => { k++; sfx('beep'); later(160, nextBoot); });
-      };
-      nextBoot();
-    });
+    later(200, () => { $('#led', root).classList.add('on'); crt.classList.add('on'); sfx('boot'); });
+    later(1000, () => { crt.classList.add('ready'); typeInto(boot, bootText, 14, () => later(250, () => {
+      boot.classList.add('dim'); holo.classList.add('show'); haptic('light');
+      later(800, () => typeInto($('#cname', root), P.name.toUpperCase(), 38, () => {
+        typeInto($('#crole', root), 'DEVELOPER · CODEBREAKER', 22, () => later(150, finish));
+      }));
+    })); });
   }
 
   const render = () => {
     clear();
-    alive = true;
     theme() === 'radio' ? radio() : detective();
-    $('#replay', root).onclick = () => render();
+    $('#replay', root).onclick = render;
   };
   render();
-  const onTheme = () => render();
-  window.addEventListener('themechange', onTheme);
-  return () => { alive = false; clear(); window.removeEventListener('themechange', onTheme); document.getElementById('app')?.classList.remove('shake'); };
+  window.addEventListener('themechange', render);
+  return () => { clear(); window.removeEventListener('themechange', render); };
 }
 
-/** Render the photo as a green, scan-lined hologram with a soft circular fade. */
+/** Render the portrait as a green, scan-lined hologram with a soft oval fade. */
 function drawHologram(cv) {
   const img = new Image();
   img.onload = () => {
     const w = cv.width, h = cv.height, ctx = cv.getContext('2d');
-    ctx.drawImage(img, 0, 0, w, h);
+    // square crop centred on the face (portrait source is 4:5)
+    const s = img.width * 0.92, sx = (img.width - s) / 2, sy = img.height * 0.02;
+    ctx.drawImage(img, sx, sy, s, s, 0, 0, w, h);
     const d = ctx.getImageData(0, 0, w, h), p = d.data;
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
       const i = (y * w + x) * 4;
       let l = (0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2]) / 255;
-      l = Math.min(1, Math.max(0, (l - 0.12) * 1.7));              // punch up contrast
-      l = Math.pow(l, 0.85);
-      const r = Math.hypot(x - w / 2, y - h / 2) / (w / 2);
-      const fade = Math.max(0, Math.min(1, (0.97 - r) * 3.2));         // circular edge fade
-      const scan = y % 3 === 0 ? 0.55 : 1;                          // scanlines
-      p[i] = 40 * l; p[i + 1] = 255 * l; p[i + 2] = 150 * l;
-      p[i + 3] = (30 + 225 * l) * fade * scan;
+      l = Math.pow(Math.min(1, Math.max(0, (l - 0.08) * 1.6)), 0.8);
+      const dx = (x - w / 2) / (w * 0.44), dy = (y - h * 0.5) / (h * 0.5);
+      const fade = Math.max(0, Math.min(1, (1 - Math.hypot(dx, dy)) * 3.5));
+      const scan = y % 3 === 0 ? 0.5 : 1;
+      p[i] = 50 * l; p[i + 1] = 255 * l; p[i + 2] = 150 * l;
+      p[i + 3] = (25 + 230 * l) * fade * scan;
     }
     ctx.putImageData(d, 0, 0);
   };

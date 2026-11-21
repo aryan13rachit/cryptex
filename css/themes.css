@@ -1,0 +1,133 @@
+/* =====================================================================
+   Theme tokens. Each theme = a palette + type system + a few signature details.
+   ===================================================================== */
+
+/* ---------------- The Detective's Desk ----------------
+   Warm walnut desk, cream paper, oxblood ink, book typography. */
+[data-theme="detective"] {
+  --font-ui: 'Crimson Pro', Georgia, serif;
+  --font-mono: 'Courier Prime', 'Courier New', monospace;
+  --fs-body: 18px; --fs-small: 15px;
+  --wordmark-font: 400 24px/1 'Special Elite', 'Courier New', monospace; --wordmark-track: .16em;
+  --bar-font: 600 20px/1.2 'Crimson Pro', serif;
+  --hero-font: 600 38px/1.05 'Crimson Pro', serif; --hero-track: -.005em;
+  --h1-font: 600 34px/1.08 'Crimson Pro', serif; --h1-track: -.005em;
+  --h3-font: 600 20px/1.25 'Crimson Pro', serif;
+  --tool-font: 600 19px/1.2 'Crimson Pro', serif;
+  --label-font: 400 12px/1.3 'Courier Prime', monospace; --label-track: .12em;
+  --btn-font: 600 17px/1 'Crimson Pro', serif; --btn-track: .01em; --btn-case: none;
+  --seg-font: 600 16px/1 'Crimson Pro', serif;
+
+  --bg:
+    radial-gradient(120% 70% at 50% -10%, rgba(255, 214, 160, .10), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .45' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #2c2017, #211812);
+  --page-text: #F1E6D2; --page-muted: #B8A68B; --page-chip: rgba(241, 230, 210, .14);
+  --surface: #F3EBDC; --surface-2: #E9DEC9; --border: rgba(74, 52, 30, .16);
+  --text: #2A2018; --muted: #74624D;
+  --accent: #8E2C20; --accent-strong: #8E2C20; --accent-ink: #FBF4E8; --accent-soft: rgba(142, 44, 32, .12);
+  --danger: #A3261A;
+  --radius-m: 6px; --radius-l: 8px; --radius-icon: 6px;
+  --shadow-1: 0 1px 0 rgba(255,255,255,.5) inset, 0 6px 18px rgba(0,0,0,.28), 0 1px 2px rgba(0,0,0,.25);
+  --shadow-2: 0 12px 30px rgba(0,0,0,.45);
+  --shadow-btn: 0 1px 0 rgba(255,255,255,.12) inset, 0 2px 4px rgba(60,20,10,.3);
+  --shadow-seg: 0 1px 2px rgba(40,25,10,.2);
+  --press: rgba(241,230,210,.12); --press-surface: rgba(74,52,30,.07);
+
+  --bar-bg: #1d150f; --bar-text: #F1E6D2; --bar-border: rgba(241, 230, 210, .08);
+  --nav-bg: #1d150f; --nav-text: #9C8B73; --nav-active: #F1E6D2; --nav-pill: rgba(241,230,210,.12);
+  --search-bg: rgba(241, 230, 210, .07); --search-border: rgba(241, 230, 210, .14);
+
+  --field-bg: #FBF6EC; --field-text: #2A2018; --field-border: rgba(74, 52, 30, .24);
+  --screen-bg: #FBF7EE; --screen-text: #23190F; --screen-border: rgba(74, 52, 30, .24);
+  --btn-bg: transparent; --btn-text: #2A2018; --btn-border: rgba(74, 52, 30, .35); --btn-press: rgba(74,52,30,.08);
+  --seg-bg: #E6DAC3; --seg-active: #FBF6EC;
+  --switch-off: #CDBFA6;
+  --icon-bg: #EBE0CB; --icon-fg: #5A3E26; --icon-border: rgba(74,52,30,.18);
+  --toast-bg: #2A2018; --toast-text: #F3EBDC;
+  --lamp-off: #D3C4A8; --lamp-on: #8E2C20;
+  --reticle: #FFD27A;
+  --scope-bg: #FBF7EE; --scope-grid: rgba(116, 98, 77, .16); --scope-line: #2A2018; --scope-accent: #8E2C20;
+  --bar-fill: #4A3524; --bar-ref: #8E2C20;
+  --rotor-bg: linear-gradient(90deg, #D9CBB0, #FBF6EC 45%, #D9CBB0); --rotor-text: #1d140b;
+  --key-bg: #2A2018; --key-text: #F3EBDC; --key-border: #2A2018; --key-shadow: #0e0a06;
+  --lamp-key-bg: #EEE5D3; --lamp-key-text: #9A8A72; --lamp-lit: radial-gradient(circle at 50% 45%, #FFF6D6, #FFCF5A 60%, #E19A1D); --lamp-glow: rgba(255, 190, 60, .55);
+  --wheel-outer: #FBF6EC; --wheel-inner: #EDE2CC; --wheel-line: #8C7458;
+}
+/* signature details: paper grain on surfaces, a ruled double line under page titles */
+[data-theme="detective"] .panel, [data-theme="detective"] .tool, [data-theme="detective"] .tools.list, [data-theme="detective"] .settings-group, [data-theme="detective"] .dev-row {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .12 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+[data-theme="detective"] .tools.list .tool { background-image: none; }
+[data-theme="detective"] .page-head h1 { padding-bottom: 10px; border-bottom: 3px double rgba(241, 230, 210, .22); }
+[data-theme="detective"] .home-hero h1 { font: 400 34px/1 'Special Elite', monospace; letter-spacing: .14em; }
+[data-theme="detective"] textarea { line-height: 1.6; }
+[data-theme="detective"] .kicker { color: #D79A6C; }
+[data-theme="detective"] .bottomnav a { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+
+/* ---------------- The Radio Room ----------------
+   Dark instrument panels, phosphor green, amber indicators, engineering type. */
+[data-theme="radio"] {
+  --font-ui: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --fs-body: 16px; --fs-small: 14px;
+  --wordmark-font: 600 17px/1 'IBM Plex Mono', monospace; --wordmark-track: .32em;
+  --bar-font: 600 17px/1.2 'IBM Plex Sans', sans-serif;
+  --hero-font: 600 30px/1.1 'IBM Plex Sans', sans-serif; --hero-track: -.01em;
+  --h1-font: 600 28px/1.15 'IBM Plex Sans', sans-serif; --h1-track: -.015em;
+  --h3-font: 600 15px/1.3 'IBM Plex Sans', sans-serif;
+  --tool-font: 600 15.5px/1.25 'IBM Plex Sans', sans-serif;
+  --label-font: 500 11px/1.3 'IBM Plex Mono', monospace; --label-track: .1em;
+  --btn-font: 600 14px/1 'IBM Plex Sans', sans-serif; --btn-track: .02em; --btn-case: none;
+  --seg-font: 600 13.5px/1 'IBM Plex Sans', sans-serif;
+
+  --bg:
+    radial-gradient(100% 60% at 50% -20%, rgba(95, 224, 143, .07), transparent 60%),
+    linear-gradient(180deg, #111512, #0C0F0D);
+  --page-text: #E1E8DE; --page-muted: #8D998B; --page-chip: #232A25;
+  --surface: #171C18; --surface-2: #1E241F; --border: #2A322C;
+  --text: #E1E8DE; --muted: #8D998B;
+  --accent: #5FE08F; --accent-strong: #6FF0A0; --accent-ink: #062110; --accent-soft: rgba(95, 224, 143, .14);
+  --amber: #F2A93B;
+  --danger: #FF7A6B;
+  --radius-m: 10px; --radius-l: 14px; --radius-icon: 10px;
+  --shadow-1: 0 1px 0 rgba(255,255,255,.035) inset, 0 8px 24px rgba(0,0,0,.35);
+  --shadow-2: 0 14px 34px rgba(0,0,0,.55);
+  --shadow-btn: 0 0 0 1px rgba(95,224,143,.3), 0 6px 18px rgba(95,224,143,.16);
+  --shadow-seg: 0 1px 0 rgba(255,255,255,.05) inset, 0 1px 3px rgba(0,0,0,.4);
+  --press: rgba(255,255,255,.06); --press-surface: rgba(255,255,255,.035);
+
+  --bar-bg: rgba(14, 18, 15, .92); --bar-text: #E1E8DE; --bar-border: #222924;
+  --nav-bg: rgba(14, 18, 15, .96); --nav-text: #7D897B; --nav-active: #6FF0A0; --nav-pill: rgba(95,224,143,.14);
+  --search-bg: #171C18; --search-border: #2A322C;
+
+  --field-bg: #0E1310; --field-text: #E1E8DE; --field-border: #2A322C;
+  --screen-bg: #07100A; --screen-text: #7CF0A6; --screen-border: #1E2B22;
+  --btn-bg: #1E241F; --btn-text: #E1E8DE; --btn-border: #2F3831; --btn-press: #242B26;
+  --seg-bg: #0E1310; --seg-active: #242B26;
+  --switch-off: #333C35;
+  --icon-bg: #0E1611; --icon-fg: #6FF0A0; --icon-border: #213026;
+  --toast-bg: #E1E8DE; --toast-text: #0C0F0D;
+  --lamp-off: #2D3530; --lamp-on: #F2A93B;
+  --reticle: #6FF0A0;
+  --scope-bg: #07100A; --scope-grid: rgba(95, 224, 143, .10); --scope-line: #7CF0A6; --scope-accent: #F2A93B;
+  --bar-fill: linear-gradient(180deg, #7CF0A6, #2E9C5A); --bar-ref: #F2A93B;
+  --rotor-bg: linear-gradient(90deg, #0E1310, #1E241F 45%, #0E1310); --rotor-text: #7CF0A6;
+  --key-bg: #232A25; --key-text: #E1E8DE; --key-border: #343E37; --key-shadow: #050706;
+  --lamp-key-bg: #121713; --lamp-key-text: #56625A; --lamp-lit: radial-gradient(circle at 50% 45%, #FFF3D0, #F2A93B 60%, #C9771A); --lamp-glow: rgba(242, 169, 59, .5);
+  --wheel-outer: #121713; --wheel-inner: #1E241F; --wheel-line: #3A453D;
+}
+/* signature details: power LED, phosphor screens with a whisper of scanline, mono labels */
+[data-theme="radio"] .status-led { display: block; width: 8px; height: 8px; margin: 0 10px; border-radius: 50%; background: #5FE08F; box-shadow: 0 0 8px rgba(95,224,143,.8); }
+[data-theme="radio"] .appbar { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+[data-theme="radio"] .bottomnav { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+[data-theme="radio"] textarea.out, [data-theme="radio"] .out-big, [data-theme="radio"] .align-view, [data-theme="radio"] canvas.scope, [data-theme="radio"] .bars {
+  background-image: repeating-linear-gradient(180deg, rgba(0,0,0,.22) 0 1px, transparent 1px 3px);
+  text-shadow: 0 0 6px rgba(95, 224, 143, .35);
+}
+[data-theme="radio"] .out-big { font-family: 'VT323', monospace; font-size: 26px; line-height: 1.15; }
+[data-theme="radio"] .readout { color: var(--amber); }
+[data-theme="radio"] .kicker { color: var(--amber); }
+[data-theme="radio"] .home-hero h1 { font: 600 22px/1 'IBM Plex Mono', monospace; letter-spacing: .34em; }
+[data-theme="radio"] .tool-icon svg { filter: drop-shadow(0 0 4px rgba(95,224,143,.35)); }
+[data-theme="radio"] .tool:active { border-color: #3A473E; }
