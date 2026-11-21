@@ -73,9 +73,9 @@ paper += ((streak - .5) * 6)[..., None]
 save(paper, 'paper.jpg')
 
 # ---------- Manila card ----------
-man = np.ones((S, S, 3)) * np.array([222, 192, 128])
-man += ((noise(S, S, 3.0) - .5) * 26)[..., None] * np.array([1, 1, 1.3])
-man += ((noise(S, S, 0.8) - .5) * 16)[..., None]
+man = np.ones((S, S, 3)) * np.array([233, 219, 166])   # buff manila, as in a real folder
+man += ((noise(S, S, 3.0) - .5) * 12)[..., None] * np.array([1, 1, 1.2])
+man += ((noise(S, S, 0.8) - .5) * 9)[..., None]
 man += ((noise(S, S, 1.1, sx=0.12) - .5) * 14)[..., None]
 save(man, 'manila.jpg')
 

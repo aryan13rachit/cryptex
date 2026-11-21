@@ -1,0 +1,88 @@
+/* =====================================================================
+   Reference-matched hardware (built from photos of the real objects):
+   Enigma rotor windows, 5 mm LEDs, fluted bakelite knobs, CRT light spill,
+   and manila folders.
+   ===================================================================== */
+
+/* ---------- Enigma: black crinkle lid, slanted aluminium escutcheons, ridged thumbwheels ---------- */
+[data-theme] .rotors {
+  gap: 22px; padding: 16px 20px 14px; border-radius: 10px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.06), transparent 60%), var(--tx-crinkle) 0 0 / 180px, #121411;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,.85), inset 0 -1px 0 rgba(255,255,255,.06), 0 1px 0 rgba(255,255,255,.12);
+}
+[data-theme] .rotor { display: grid; grid-template-columns: auto 15px; grid-template-rows: auto 1fr 1fr; column-gap: 5px; align-items: stretch; }
+[data-theme] .rotor .rname { grid-column: 1 / -1; justify-self: center; margin-bottom: 4px; font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: .14em; color: #c9c3ad; }
+/* escutcheon plate: stadium-shaped brushed aluminium held by two screws, set at a slant */
+[data-theme] .rotor .win {
+  grid-column: 1; grid-row: 2 / span 2; position: relative; isolation: isolate;
+  width: 48px; height: 96px; border: 0; border-radius: 24px; transform: rotate(-7deg);
+  display: grid; place-items: center; color: #151515; font: 700 20px/1 'Courier Prime', monospace; text-shadow: none;
+  background:
+    var(--hw-screw) center top 6px / 10px no-repeat, var(--hw-screw) center bottom 6px / 10px no-repeat,
+    linear-gradient(100deg, rgba(255,255,255,.35), rgba(255,255,255,0) 40%, rgba(0,0,0,.18)), var(--tx-al) 0 0 / 160px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.7), inset 0 -1px 1px rgba(0,0,0,.3);
+}
+/* the square aperture, showing the curved ivory letter ring of the rotor behind it */
+[data-theme] .rotor .win::before {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 28px; height: 28px; margin: -14px 0 0 -14px; z-index: -1; border-radius: 2px;
+  background: linear-gradient(180deg, #6f6956 0%, #e9e1c8 28%, #f6f0dc 50%, #e9e1c8 72%, #6f6956 100%);
+  box-shadow: inset 0 0 0 2px #121212, inset 0 4px 4px rgba(0,0,0,.55), inset 0 -3px 3px rgba(0,0,0,.4);
+}
+/* thumbwheel edge poking up through the lid: tap upper half = forward, lower half = back */
+[data-theme] .rotor button {
+  width: 15px; min-height: 0; height: auto; padding: 0; border: 1px solid #000; transform: none; color: transparent;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.65), rgba(255,255,255,.28) 45%, rgba(255,255,255,.05) 60%, rgba(0,0,0,.6)),
+    repeating-linear-gradient(180deg, #1d1d1d 0 2px, #9aa09a 2px 3.2px, #2a2a2a 3.2px 4.6px);
+  box-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+[data-theme] .rotor button svg { display: none; }
+[data-theme] .rotor [data-up] { grid-column: 2; grid-row: 2; border-radius: 8px 8px 1px 1px; }
+[data-theme] .rotor [data-dn] { grid-column: 2; grid-row: 3; border-radius: 1px 1px 8px 8px; }
+[data-theme] .rotor button:active { filter: brightness(1.35); transform: none; box-shadow: inset 0 0 4px rgba(0,0,0,.8); }
+
+/* ---------- 5 mm LEDs: diffused epoxy dome, flange, visible lead-frame, chrome holder ---------- */
+[data-theme="radio"] .power-led, .chin-led.on, .led, [data-theme="radio"] .panel-title::before, .tapebank.run .bank-lights i {
+  background:
+    radial-gradient(circle at 36% 28%, rgba(255,255,255,.95) 0 9%, rgba(255,255,255,0) 20%),
+    radial-gradient(ellipse 20% 30% at 50% 64%, rgba(0,0,0,.4), transparent 75%),
+    radial-gradient(circle at 50% 52%, color-mix(in srgb, var(--c) 30%, #fff) 0 16%, var(--c) 46%, color-mix(in srgb, var(--c) 55%, #000) 88%);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 35%, #000), 0 0 0 2.5px #161715, 0 0 0 3.5px #8d918a, 0 0 9px 2px color-mix(in srgb, var(--c) 60%, transparent);
+}
+.chin-led:not(.on), .tapebank:not(.run) .bank-lights i {
+  background: radial-gradient(circle at 36% 28%, rgba(255,255,255,.55) 0 8%, transparent 18%), radial-gradient(ellipse 20% 30% at 50% 64%, rgba(0,0,0,.5), transparent 75%), radial-gradient(circle, #2c4232, #0e1711 85%);
+  box-shadow: 0 0 0 1px #000, 0 0 0 2.5px #161715, 0 0 0 3.5px #8d918a;
+}
+
+/* ---------- knobs: black fluted bakelite with a white index line on a metal skirt ---------- */
+.chin-knobs { gap: 14px; }
+.chin-knobs i { width: 28px; height: 28px;
+  background:
+    radial-gradient(circle at 40% 28%, rgba(255,255,255,.38), rgba(255,255,255,0) 32%),
+    radial-gradient(circle, #1b1b1b 0 52%, rgba(0,0,0,0) 53%),
+    repeating-conic-gradient(#0b0b0b 0 6deg, #444 6deg 9deg, #0b0b0b 9deg 15deg);
+  box-shadow: 0 0 0 3px #c3c6be, 0 0 0 4px #4d504b, 0 4px 6px rgba(0,0,0,.6); }
+.chin-knobs i::after { background: #f2f0e6; width: 2px; height: 9px; top: 3px; box-shadow: 0 0 1px rgba(0,0,0,.6); }
+
+/* ---------- CRT: phosphor light spills onto the inner bezel ---------- */
+.bezel { position: relative; }
+.bezel::after { content: ''; position: absolute; inset: -24px; border-radius: 26px; pointer-events: none; mix-blend-mode: screen;
+  background: radial-gradient(ellipse 60% 55% at 50% 50%, rgba(70, 255, 140, .16), rgba(70, 255, 140, .05) 55%, transparent 75%); opacity: 0; transition: opacity 1.2s; }
+.monitor:has(.crt-face.show) .bezel::after { opacity: 1; }
+
+/* ---------- Manila folders, as in the reference photo ---------- */
+/* pale buff stock; the back panel shows as a strip above the shorter front cover; page edges peek out */
+[data-theme="detective"] .tools.grid .card {
+  margin-top: 22px; border-radius: 2px 2px 4px 4px; transform: rotate(var(--rot, 0deg));
+  background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0) 30%, rgba(120, 95, 30, .06)), var(--tx-manila) 0 0 / 300px;
+  box-shadow:
+    0 -7px 0 0 #ddcc90,                     /* back panel above the front cover */
+    0 -8px 0 0 rgba(120, 95, 40, .25),
+    2px 2px 0 -.5px #f7f2e2, 3px 3px 0 -.5px #cdbd86, 5px 4px 0 -1px #f4eedb, 6px 5px 0 -1px #c4b37a,   /* page edges */
+    0 12px 20px rgba(0,0,0,.45), 0 2px 3px rgba(0,0,0,.3);
+}
+[data-theme="detective"] .tools.grid .card::before { top: -22px; left: 0; height: 16px; border-radius: 7px 9px 0 0; color: #5b4a24;
+  background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(0,0,0,0)), var(--tx-manila) 0 0 / 300px; box-shadow: inset 0 1px 0 rgba(255,255,255,.4); }
+[data-theme="detective"] .card.card-about { background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(120, 95, 30, .06)), var(--tx-manila) 0 0 / 300px; }
+[data-theme="detective"] .card-title { color: #2a2214; }
+[data-theme="detective"] .card-sub { color: #5d4f33; opacity: 1; }

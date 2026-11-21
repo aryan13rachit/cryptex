@@ -3,7 +3,7 @@ import { $, $$, ICONS, esc, toast } from './ui.js';
 import { soundOn, setSound, sfx } from './lib/sfx.js';
 import { isNative, haptic, hapticsEnabled, setHaptics, setStatusBar, installBackButton } from './lib/native.js';
 
-export const VERSION = '2.6';
+export const VERSION = '2.7';
 
 // Each tool has a theme-specific name: [detective, radio]
 export const TOOLS = [
@@ -175,7 +175,7 @@ function renderHome() {
     <p class="home-empty" id="empty" hidden>${ti() ? 'NO MODULE MATCHES.' : 'No file matches that description.'}</p>
     <section class="tool-group"><h2 class="group-label">${ti() ? 'OPERATOR ON DUTY' : 'Personnel'}</h2>
       <a class="card card-about" href="#/about" data-tab="${c.about[0].toUpperCase()}" data-q="developer about rachit aryan asthana operator profile personnel">
-        <span class="card-photo"><img src="assets/dev.jpg" alt=""></span>
+        <span class="card-photo"><img src="assets/dev-anon.jpg" alt=""></span>
         <span class="card-num">${ti() ? 'OP' : c.about[0]}</span>
         <span class="card-title">${c.about[1]}</span>
         <span class="card-sub">${c.about[2]}</span>

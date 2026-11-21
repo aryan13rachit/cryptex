@@ -270,7 +270,7 @@ export function mount(root) {
 /**
  * Evidence print: a normal black-and-white photo (light grain, slight vignette, scuffs), with a
  * black redaction bar over the eyes and a hand-drawn red marker circle around the face.
- * Feature positions are in the source photo's coordinates (assets/dev.jpg is 720×900).
+ * Feature positions are in the source photo's coordinates (assets/dev-anon.jpg is 720×900).
  */
 function drawNoir(cv) {
   const img = new Image();
@@ -329,7 +329,7 @@ function drawNoir(cv) {
     }
     ctx.restore();
   };
-  img.src = 'assets/dev.jpg';
+  img.src = 'assets/dev-anon.jpg';
 }
 /**
  * Curved tube: the glass is convex, so every edge bows outward. Built as a clip-path in pixels.
@@ -447,6 +447,6 @@ function startZola(cv, crt) {
     };
     raf = requestAnimationFrame(frame);
   };
-  img.src = 'assets/dev.jpg';
+  img.src = 'assets/dev-soft.jpg';
   return () => { alive = false; cancelAnimationFrame(raf); };
 }
