@@ -9,12 +9,13 @@ import { textToMorse, morseTimeline } from '../lib/morse.js';
 const P = {
   name: 'Rachit Aryan Asthana',
   short: 'R. A. ASTHANA',
-  bio: 'I have loved cryptography and ciphers since I was a child. It started with detective stories — Sherlock Holmes, Hercule Poirot, and the codes woven through The Da Vinci Code — and it never stopped. I have solved Jane Street puzzles, gone hunting for the treasures of “The Secret”, and I start most days with the Minute Cryptic. Cryptex is the kit I always wanted: every cipher, signal and secret in one place.',
+  bio: 'I have loved cryptography and ciphers since I was a child. It started with detective stories — Sherlock Holmes, Hercule Poirot, and the codes woven through The Da Vinci Code — and it never stopped. I have solved Jane Street puzzles, gone hunting for the treasures of “The Secret”, and I start most days with the Minute Cryptic. Over the years I have filled a diary with tons of my own cryptic poems, riddles and puzzles. Cryptex is the kit I always wanted: every cipher, signal and secret in one place.',
 };
 const EVIDENCE = [
   { kind: 'sticky', title: 'Jane Street puzzles', by: 'Monthly puzzles', tag: 'Solved' },
   { kind: 'map', title: 'The Secret: A Treasure Hunt', by: 'Byron Preiss', tag: 'Ongoing' },
   { kind: 'calendar', title: 'Minute Cryptic', by: 'One clue a day', tag: 'Daily' },
+  { kind: 'diary', title: 'The Diary', by: 'Tons of cryptic poems, riddles & puzzles', tag: 'Authored' },
 ];
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -81,7 +82,7 @@ export function mount(root) {
               <div class="booking">
                 <div class="mug">
                   <div class="mug-chart">${['6′6', '6′0', '5′6', '5′0', '4′6'].map(h => `<span>${h}</span>`).join('')}</div>
-                  <img src="assets/dev.jpg" alt="Booking photo of ${esc(P.name)}">
+                  <canvas class="noir" data-noir="mug" role="img" aria-label="Booking photo of ${esc(P.name)}, mostly in shadow"></canvas>
                   <div class="placard"><b>${esc(P.short)}</b><span>CRYPTEX · 012 · 2026</span></div>
                 </div>
                 <dl class="dz-fields">${fields.map(([k]) => `<dt>${esc(k)}</dt><dd></dd>`).join('')}</dl>
@@ -99,7 +100,7 @@ export function mount(root) {
         <h2 class="board-title">Evidence board</h2>
         <div class="board" id="board">
           <svg class="strings" id="strings" aria-hidden="true"></svg>
-          <figure class="board-photo" data-pin="hub"><img src="assets/dev.jpg" alt=""><figcaption>The subject</figcaption><i class="pin"></i></figure>
+          <figure class="board-photo" data-pin="hub"><canvas class="noir" data-noir="board" aria-hidden="true"></canvas><figcaption>The subject</figcaption><i class="pin"></i></figure>
           ${EVIDENCE.map((e, i) => note(e, i)).join('')}
         </div>
 
@@ -111,6 +112,7 @@ export function mount(root) {
         <div class="about-actions"><button class="btn" id="replay">${ICONS.reset}Replay</button></div>
       </div>`;
 
+    $$('canvas.noir', root).forEach(drawNoir);
     const folder = $('#folder', root), cover = $('#cover', root), dds = $$('.dz-fields dd', root);
     const fillFields = done => {
       let k = 0;
@@ -166,6 +168,7 @@ export function mount(root) {
       sticky: `<b>${esc(e.title)}</b><span>${esc(e.by)}</span><em>✓ ${esc(e.tag)}</em>`,
       map: `<b>${esc(e.title)}</b><span>${esc(e.by)}</span><em>✕ ${esc(e.tag)}</em>`,
       calendar: `<small class="n-month">EVERY DAY</small><b>${esc(e.title)}</b><span>${esc(e.by)}</span><em>${esc(e.tag)}</em>`,
+      diary: `<small class="n-foil">DIARY</small><b>${esc(e.title)}</b><span>${esc(e.by)}</span><em>${esc(e.tag)}</em><i class="n-band"></i>`,
     }[e.kind];
     return `<div class="note note-${e.kind}" data-pin="note" style="--r:${[-3, 2.5, -1.5, 3, -2.5, 2][i]}deg;--d:${i * 0.08}s">${body}<i class="pin"></i></div>`;
   }
@@ -176,6 +179,7 @@ export function mount(root) {
       ['Jane Street puzzles', 'Monthly puzzles', 'SOLVED', 'ok'],
       ['The Secret: A Treasure Hunt', 'Byron Preiss', 'ONGOING', 'warn'],
       ['Minute Cryptic', 'One clue a day', 'DAILY', 'live'],
+      ['The Diary', 'Cryptic poems, riddles & puzzles', 'AUTHORED', 'ok'],
     ];
     root.innerHTML = `
       <div class="about about-radio">
@@ -263,6 +267,42 @@ export function mount(root) {
   return () => { clear(); window.removeEventListener('themechange', render); };
 }
 
+/**
+ * Noir surveillance print: underexposed, crushed shadows, coarse film grain, vignette — the face
+ * survives only as faint highlights (forehead, nose, cheekbone), like the data face on the terminal.
+ */
+function drawNoir(cv) {
+  const img = new Image();
+  img.onload = () => {
+    const board = cv.dataset.noir === 'board';
+    const w = cv.width = 360, h = cv.height = board ? 360 : 450;
+    const ctx = cv.getContext('2d');
+    const s = Math.max(w / img.width, h / img.height) * 1.08;
+    ctx.filter = 'blur(.6px)';
+    ctx.drawImage(img, (w - img.width * s) / 2, (h - img.height * s) * (board ? .3 : .45), img.width * s, img.height * s);
+    ctx.filter = 'none';
+    const d = ctx.getImageData(0, 0, w, h), p = d.data;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      let l = (0.3 * p[i] + 0.59 * p[i + 1] + 0.11 * p[i + 2]) / 255;
+      l = Math.max(0, l - 0.24) * 1.35;                 // underexpose: only highlights survive
+      l = Math.pow(l, 1.5);
+      const vx = x / w - .5, vy = y / h - .42;
+      l *= Math.max(0, 1 - (vx * vx + vy * vy) * 2.6);  // heavy vignette
+      l += (Math.random() - .5) * 0.16;                 // coarse silver grain
+      l = Math.max(0, Math.min(1, l + 0.06));
+      const v = l * 255;
+      p[i] = v * (board ? 1.04 : 1); p[i + 1] = v * (board ? .97 : 1); p[i + 2] = v * (board ? .86 : 1); p[i + 3] = 255;
+    }
+    ctx.putImageData(d, 0, 0);
+    // scratches and dust on the print
+    ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = 0.7;
+    for (let k = 0; k < 5; k++) { ctx.beginPath(); const x0 = Math.random() * w; ctx.moveTo(x0, 0); ctx.lineTo(x0 + (Math.random() - .5) * 40, h); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(255,255,255,.35)';
+    for (let k = 0; k < 40; k++) ctx.fillRect(Math.random() * w, Math.random() * h, Math.random() * 2, Math.random() * 2);
+  };
+  img.src = 'assets/dev.jpg';
+}
 /**
  * Curved tube: the glass is convex, so every edge bows outward. Built as a clip-path in pixels.
  */

@@ -210,5 +210,19 @@
 .bank-lights i:nth-child(3n) { --lc: #5cff8a; } .bank-lights i:nth-child(3n+1) { --lc: #ffb340; } .bank-lights i:nth-child(3n+2) { --lc: #ff6a3d; }
 @keyframes bank-blink { 0%, 49% { background: var(--lc); box-shadow: 0 0 8px var(--lc), inset 0 -1px 2px rgba(0,0,0,.3); } 50%, 100% { background: #2a2116; box-shadow: inset 0 1px 2px #000; } }
 /* three pieces of evidence under the photo */
-.board .note-calendar { grid-column: 1 / -1; justify-self: center; width: 58%; }
+
 .board-photo { margin-bottom: 6px; }
+
+/* noir surveillance prints */
+.mug canvas.noir { position: relative; display: block; width: 100%; aspect-ratio: 4 / 5; }
+.board-photo canvas.noir { display: block; width: 100%; aspect-ratio: 1; }
+/* the diary: worn leather cover, gold-foil label, elastic band */
+.note-diary { color: #e9d9b8; border-radius: 4px 8px 8px 4px; min-height: 120px; padding-left: 18px; padding-right: 24px;
+  background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.08), transparent 50%), repeating-linear-gradient(115deg, rgba(0,0,0,.08) 0 2px, transparent 2px 5px), linear-gradient(160deg, #5a2f1c, #3b1d10 60%, #2a140a);
+  box-shadow: inset 4px 0 0 #2a140a, inset 6px 0 0 rgba(255,255,255,.06), inset 0 0 0 1px rgba(0,0,0,.5), inset 0 0 18px rgba(0,0,0,.45), 0 8px 14px rgba(0,0,0,.45); }
+.note-diary::before { content: ''; position: absolute; inset: 6px 6px 6px 12px; border: 1px dashed rgba(233, 205, 150, .35); border-radius: 3px; pointer-events: none; }
+.note-diary b { color: #f0dcae; }
+.note-diary span { color: #cdb48a; }
+.note-diary em { color: #e7c46a; }
+.n-foil { align-self: flex-start; padding: 1px 8px; border: 1px solid rgba(231, 196, 106, .7); font: 10px 'Courier Prime', monospace; letter-spacing: .3em; color: #e7c46a; text-shadow: 0 1px 0 rgba(0,0,0,.6); background: linear-gradient(180deg, rgba(255,230,160,.12), transparent); }
+.n-band { position: absolute; top: 0; bottom: 0; right: 7px; width: 6px; background: linear-gradient(90deg, #111, #2c2c2c 50%, #0a0a0a); box-shadow: 1px 0 2px rgba(0,0,0,.5); }

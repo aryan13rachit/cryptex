@@ -216,3 +216,36 @@
 .crt-caption .crt-role { font-size: clamp(12px, 3.4vw, 15px); }
 
 [data-theme="detective"] .about-actions .btn { color: #2a1d12; border-color: transparent; }
+
+/* =================== Realism round 3: legends, counters, stamped icons, brass knobs =================== */
+/* Radio: panel icons are engraved, white-filled legends — not glowing outlines */
+[data-theme="radio"] .card-icon { color: #e4e6df; filter: drop-shadow(0 -1px 0 rgba(0,0,0,.85)) drop-shadow(0 1px 0 rgba(255,255,255,.12)); }
+[data-theme="radio"] .card-icon svg { stroke-width: 1.6; }
+/* Radio: module numbers on mechanical drum counters (white numerals on rotating black drums) */
+[data-theme="radio"] .card-num {
+  padding: 4px 7px; border-radius: 4px; color: #f2f0e6; letter-spacing: .28em; text-shadow: 0 1px 0 #000; font-family: 'Share Tech Mono', monospace; font-size: 22px; line-height: 1.15;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,0) 32%, rgba(0,0,0,0) 68%, rgba(0,0,0,.92) 100%),
+    repeating-linear-gradient(90deg, #1b1c1a 0 .82em, #070707 .82em .9em),
+    #151614;
+  box-shadow: 0 0 0 2px #0a0a09, 0 0 0 4px #8d918a, 0 0 0 5px #3a3d38, inset 0 1px 0 rgba(255,255,255,.18), 0 3px 5px rgba(0,0,0,.6);
+}
+/* glass window over the counter */
+[data-theme="radio"] .card-num::after { content: ''; position: absolute; inset: 0; border-radius: 4px; background: linear-gradient(170deg, rgba(255,255,255,.18), transparent 45%); pointer-events: none; }
+[data-theme="radio"] .tools.list .card-num { font-size: 20px; padding: 4px 6px; }
+/* Radio: CRT headline uses a realistic P1 phosphor green, less neon */
+[data-theme="radio"] .home-intro h1 { color: #49e07a; text-shadow: 0 0 8px rgba(60, 220, 110, .45), 0 0 1px #c8ffd8; }
+
+/* Detective: folder icons are rubber-stamp impressions in patchy ink */
+[data-theme="detective"] .card-icon { color: #24364f; opacity: .82; transform: rotate(-4deg);
+  -webkit-mask-image: var(--ink-mask); mask-image: var(--ink-mask); -webkit-mask-size: 90px; mask-size: 90px; }
+[data-theme="detective"] .card:nth-child(even) .card-icon { color: #7c1d18; transform: rotate(3deg); }
+[data-theme="detective"] .card-icon svg { stroke-width: 2.2; }
+/* Detective: top-bar controls are brass knobs with engraved symbols */
+[data-theme="detective"] .topbar .icon-btn {
+  width: 40px; height: 40px; border-radius: 50%; color: #3a2a10;
+  background: radial-gradient(circle at 38% 30%, #fff3c8, #d8ad48 42%, #8e6a1c 85%, #5e4211);
+  box-shadow: 0 0 0 2px #3a2610, 0 3px 5px rgba(0,0,0,.6), inset 0 -2px 3px rgba(0,0,0,.3), inset 0 1px 1px rgba(255,255,255,.6);
+}
+[data-theme="detective"] .topbar .icon-btn svg { width: 20px; height: 20px; filter: drop-shadow(0 1px 0 rgba(255, 240, 200, .6)); }
+[data-theme="detective"] .topbar .icon-btn:active { transform: translateY(1px); box-shadow: 0 0 0 2px #3a2610, 0 1px 2px rgba(0,0,0,.6), inset 0 2px 4px rgba(0,0,0,.35); }

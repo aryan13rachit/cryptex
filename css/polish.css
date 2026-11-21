@@ -78,3 +78,10 @@ input[type=search] { font-family: var(--font-mono); }
 .card-about { min-height: 0; }
 .tool-group .card-about { margin-top: 14px; }
 .view-head p { max-width: 52ch; }
+
+/* no pinch / double-tap zoom anywhere */
+html, body { touch-action: pan-x pan-y; -ms-content-zooming: none; }
+/* drawer / control panel is draggable by hand */
+.sheet-panel { touch-action: none; will-change: transform; }
+.sheet-grip { width: 64px; height: 6px; margin: 2px auto 16px; border-radius: 3px; cursor: grab; position: relative; }
+.sheet-grip::before { content: ''; position: absolute; left: -40px; right: -40px; top: -14px; bottom: -14px; }

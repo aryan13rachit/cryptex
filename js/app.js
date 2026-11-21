@@ -3,7 +3,7 @@ import { $, $$, ICONS, esc, toast } from './ui.js';
 import { soundOn, setSound, sfx } from './lib/sfx.js';
 import { isNative, haptic, hapticsEnabled, setHaptics, setStatusBar, installBackButton } from './lib/native.js';
 
-export const VERSION = '2.5';
+export const VERSION = '2.6';
 
 // Each tool has a theme-specific name: [detective, radio]
 export const TOOLS = [
@@ -83,7 +83,37 @@ function syncSettings() {
   $$('[data-set-view]', sh).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.setView === viewMode())));
 }
 function openSettings() { const sh = $('#settings'); syncSettings(); sh.hidden = false; requestAnimationFrame(() => sh.classList.add('open')); }
-function closeSettings() { const sh = $('#settings'); sh.classList.remove('open'); setTimeout(() => { sh.hidden = true; }, 250); }
+function closeSettings() { const sh = $('#settings'); sh.classList.remove('open'); const p = $('.sheet-panel', sh); p.style.transform = ''; p.style.transition = ''; setTimeout(() => { sh.hidden = true; }, 250); }
+
+// Drag the drawer / control panel: it follows the finger; flick or pull past a third to close, otherwise it snaps back.
+(() => {
+  const sh = $('#settings'), panel = $('.sheet-panel', sh);
+  let drag = null;
+  panel.addEventListener('pointerdown', e => {
+    if (e.target.closest('button, input, label, select, a') && !e.target.closest('.sheet-grip')) return;
+    drag = { y0: e.clientY, t0: performance.now(), dy: 0, id: e.pointerId };
+    panel.setPointerCapture?.(e.pointerId);
+    panel.style.transition = 'none';
+  });
+  panel.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dy = e.clientY - drag.y0;
+    drag.dy = dy > 0 ? dy : dy / 4;                       // resists upward pull, follows downward
+    panel.style.transform = `translateY(${drag.dy}px)`;
+    sh.style.background = `rgba(0,0,0,${Math.max(0, .5 - drag.dy / panel.offsetHeight * .5)})`;
+  });
+  const end = e => {
+    if (!drag || (e && e.pointerId !== drag.id)) return;
+    const v = drag.dy / Math.max(1, performance.now() - drag.t0);   // px per ms
+    const close = drag.dy > panel.offsetHeight / 3 || v > 0.6;
+    panel.style.transition = 'transform .25s cubic-bezier(.2,.9,.3,1)';
+    sh.style.background = '';
+    if (close) { panel.style.transform = 'translateY(100%)'; setTimeout(closeSettings, 200); }
+    else panel.style.transform = '';
+    drag = null;
+  };
+  panel.addEventListener('pointerup', end); panel.addEventListener('pointercancel', end);
+})();
 $('#settings-btn').onclick = openSettings;
 $('#settings').addEventListener('close', closeSettings);
 $('#settings').addEventListener('click', e => {
