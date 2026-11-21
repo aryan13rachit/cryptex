@@ -233,10 +233,17 @@ function drawHologram(cv) {
     const s = img.width * 0.92, sx = (img.width - s) / 2, sy = img.height * 0.02;
     ctx.drawImage(img, sx, sy, s, s, 0, 0, w, h);
     const d = ctx.getImageData(0, 0, w, h), p = d.data;
+    const L = new Float32Array(w * h);
+    for (let i = 0; i < w * h; i++) L[i] = (0.299 * p[i * 4] + 0.587 * p[i * 4 + 1] + 0.114 * p[i * 4 + 2]) / 255;
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const i = (y * w + x) * 4;
-      let l = (0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2]) / 255;
-      l = Math.pow(Math.min(1, Math.max(0, (l - 0.05) * 1.9)), 0.75);
+      const i = (y * w + x) * 4, k = y * w + x;
+      // brightness lift, plus Sobel edges so dark hair still reads as a glowing outline
+      let l = Math.pow(Math.min(1, Math.max(0, (L[k] - 0.03) * 2.1)), 0.72);
+      if (x > 0 && y > 0 && x < w - 1 && y < h - 1) {
+        const gx = L[k - w + 1] + 2 * L[k + 1] + L[k + w + 1] - L[k - w - 1] - 2 * L[k - 1] - L[k + w - 1];
+        const gy = L[k + w - 1] + 2 * L[k + w] + L[k + w + 1] - L[k - w - 1] - 2 * L[k - w] - L[k - w + 1];
+        l = Math.max(l, Math.min(1, Math.hypot(gx, gy) * 2.4));
+      }
       const dx = (x - w / 2) / (w * 0.44), dy = (y - h * 0.5) / (h * 0.5);
       const fade = Math.max(0, Math.min(1, (1 - Math.hypot(dx, dy)) * 3.5));
       p[i] = 50 * l; p[i + 1] = 255 * l; p[i + 2] = 150 * l;

@@ -113,25 +113,25 @@
 @keyframes crt-flick { 0%, 100% { opacity: 1; } 3% { opacity: .86; } 6% { opacity: 1; } }
 .boot { margin: 0; min-height: 4em; font: clamp(13px, 3.8vw, 17px)/1.3 'VT323', monospace; white-space: pre-wrap; text-shadow: 0 0 6px rgba(92,255,138,.7); transition: opacity .5s; }
 .boot.dim { opacity: .32; }
-.holo { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; opacity: 0; }
+.holo { position: relative; flex: 1 1 0; min-height: 0; opacity: 0; }
 .holo.show { animation: holo-in 1.1s cubic-bezier(.2, .8, .2, 1) forwards; }
-.holo canvas { height: 88%; max-height: 270px; aspect-ratio: 1; mix-blend-mode: screen; filter: drop-shadow(0 0 12px rgba(92,255,138,.6)); animation: holo-glitch 3.6s infinite, holo-float 5s ease-in-out infinite; }
+.holo canvas { position: absolute; left: 50%; top: 0; height: 100%; width: auto; max-width: 100%; aspect-ratio: 1; object-fit: contain; transform: translateX(-50%); mix-blend-mode: screen; filter: drop-shadow(0 0 12px rgba(92,255,138,.6)); animation: holo-glitch 3.6s infinite, holo-float 5s ease-in-out infinite; }
 .holo-scan { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; background: linear-gradient(180deg, transparent 46%, rgba(150,255,190,.3) 50%, transparent 54%); background-size: 100% 240%; animation: holo-scan 2.8s linear infinite;
   -webkit-mask-image: radial-gradient(ellipse 34% 46% at 50% 46%, #000 60%, transparent 100%); mask-image: radial-gradient(ellipse 34% 46% at 50% 46%, #000 60%, transparent 100%); }
-.holo-ring { position: absolute; left: 50%; bottom: 10px; width: 58%; aspect-ratio: 1; transform: translate(-50%, 50%) rotateX(78deg); transform-style: preserve-3d; pointer-events: none; }
+.holo-ring { position: absolute; left: 50%; bottom: 2px; width: 46%; aspect-ratio: 1; transform: translate(-50%, 50%) rotateX(78deg); transform-style: preserve-3d; pointer-events: none; }
 .holo-ring i { position: absolute; inset: 0; border-radius: 50%; border: 2px dashed rgba(92,255,138,.7); box-shadow: 0 0 12px rgba(92,255,138,.5); animation: ring-spin 6s linear infinite; }
 .holo-ring i:nth-child(2) { inset: 14%; border-style: solid; border-color: rgba(92,255,138,.35); animation-duration: 9s; animation-direction: reverse; }
 .holo::after { content: ''; position: absolute; left: 30%; right: 30%; bottom: 10px; height: 75%; background: linear-gradient(0deg, rgba(92,255,138,.16), transparent); clip-path: polygon(35% 100%, 65% 100%, 100% 0, 0 0); pointer-events: none; }
 @keyframes ring-spin { to { transform: rotate(360deg); } }
 @keyframes holo-in { 0% { opacity: 0; transform: scaleY(.03); } 30% { opacity: 1; transform: scaleY(.03); } 65% { transform: scaleY(1.04); } 75% { transform: skewX(4deg); opacity: .7; } 85%, 100% { opacity: 1; transform: none; } }
-@keyframes holo-glitch { 0%, 100% { opacity: .95; transform: none; } 42% { opacity: .95; } 43% { opacity: .55; transform: translateX(3px) skewX(5deg); } 44% { transform: translateX(-2px); opacity: .9; } 45% { transform: none; opacity: 1; } }
-@keyframes holo-float { 0%, 100% { translate: 0 -3px; } 50% { translate: 0 3px; } }
+@keyframes holo-glitch { 0%, 100% { opacity: .95; } 42% { opacity: .95; } 43% { opacity: .55; translate: 3px 0; } 44% { translate: -2px 0; opacity: .9; } 45% { translate: 0 0; opacity: 1; } }
+@keyframes holo-float { 0%, 100% { margin-top: -3px; } 50% { margin-top: 3px; } }
 @keyframes holo-scan { from { background-position: 0 100%; } to { background-position: 0 -140%; } }
 .crt-id { text-align: center; padding-top: 4px; min-height: 3.1em; }
 .crt-name { font: clamp(22px, 6.6vw, 30px)/1.1 'VT323', monospace; letter-spacing: .08em; color: #ffb340; text-shadow: 0 0 10px rgba(255,150,40,.8); }
 .crt-role { font: clamp(14px, 4vw, 18px)/1.2 'VT323', monospace; letter-spacing: .12em; color: #6dff9e; opacity: .85; }
 .chin { display: flex; align-items: center; gap: 12px; padding: 14px 6px 18px; }
-.chin-brand { flex: 1; font: 11px 'Share Tech Mono', monospace; letter-spacing: .2em; color: #5f5948; text-shadow: 0 1px 0 rgba(255,255,255,.6); }
+.chin-brand { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font: 10px 'Share Tech Mono', monospace; letter-spacing: .14em; color: #5f5948; text-shadow: 0 1px 0 rgba(255,255,255,.6); }
 .chin-knobs { display: flex; gap: 10px; }
 .chin-knobs i { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #f6f2e6, #a49c86 60%, #6c6656); box-shadow: 0 2px 3px rgba(0,0,0,.4); }
 .chin-led { width: 11px; height: 11px; border-radius: 50%; background: #2b3a2e; box-shadow: inset 0 1px 2px #000; transition: .2s; }
