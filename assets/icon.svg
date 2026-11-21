@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="75%"><stop offset="0" stop-color="#4a3020"/><stop offset="1" stop-color="#140c07"/></radialGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6dc95"/><stop offset=".5" stop-color="#c79a3e"/><stop offset="1" stop-color="#7d5a1d"/></linearGradient>
+    <radialGradient id="face" cx="50%" cy="45%" r="60%"><stop offset="0" stop-color="#f7ecd0"/><stop offset="1" stop-color="#d8c08a"/></radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="176" fill="url(#brass)"/>
+  <circle cx="256" cy="256" r="150" fill="url(#face)" stroke="#6b4a1c" stroke-width="4"/>
+  <g stroke="#6b4a1c" stroke-width="5" stroke-linecap="round">
+    <path d="M256 92v22M256 398v22M92 256h22M398 256h22M140 140l15 15M357 357l15 15M372 140l-15 15M155 357l-15 15"/>
+  </g>
+  <g font-family="Georgia, 'Times New Roman', serif" font-size="40" font-weight="bold" fill="#3b2817" text-anchor="middle">
+    <text x="256" y="152">C</text><text x="256" y="388">X</text><text x="138" y="270">A</text><text x="374" y="270">Z</text>
+  </g>
+  <circle cx="256" cy="256" r="62" fill="#a3221d" stroke="#5a0f0c" stroke-width="5"/>
+  <path d="M256 222a18 18 0 0 1 10 33l8 35h-36l8-35a18 18 0 0 1 10-33z" fill="#2a120c"/>
+</svg>

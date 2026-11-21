@@ -1,0 +1,11 @@
+{
+  "name": "cryptex",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cryptex - vintage cipher & signals toolkit (installable PWA)",
+  "scripts": {
+    "test": "node test/run-tests.js",
+    "serve": "python -m http.server 8080"
+  }
+}
