@@ -3,7 +3,7 @@ import { $, $$, ICONS, esc, toast } from './ui.js';
 import { soundOn, setSound, sfx } from './lib/sfx.js';
 import { isNative, haptic, hapticsEnabled, setHaptics, setStatusBar, installBackButton } from './lib/native.js';
 
-export const VERSION = '2.9';
+export const VERSION = '3.0';
 
 // Each tool has a theme-specific name: [detective, radio]
 export const TOOLS = [
@@ -18,6 +18,10 @@ export const TOOLS = [
   { id: 'encoders', g: 2, icon: 'encoders', t: [['The Telegraph Office', 'Base64, hex, binary, octal and decimal transcription.'], ['Data Encoder', 'Base64 / hex / binary / octal / decimal converter.']], stamp: 'RECEIVED' },
   { id: 'vault', g: 2, icon: 'vault', t: [['The Sealed Envelope', 'Real AES-256 encryption with a password, and fingerprints (hashes).'], ['Crypto Vault', 'AES-256-GCM + PBKDF2. SHA hash generator.']], stamp: 'SEALED' },
   { id: 'codebreaker', g: 2, icon: 'codebreaker', t: [['The Codebreaker', 'Letter-frequency forensics to identify and break a cipher.'], ['Cryptanalyzer', 'Frequency spectrum, index of coincidence, auto-solve.']], stamp: 'INVESTIGATE' },
+  { id: 'jefferson', g: 0, icon: 'jefferson', t: [['The Jefferson Wheel', 'A cylinder of lettered disks — Jefferson’s 1795 cipher and the Army’s M-94.'], ['Wheel Cipher M-94', 'Multi-disk cylinder cipher. Drag disks, read any row.']], stamp: 'PRESIDENTIAL' },
+  { id: 'numbers', g: 1, icon: 'numbers', t: [['The Numbers Station', 'Spy broadcasts: one-time pad, checkerboard, a voice reading the groups.'], ['Numbers Transmitter', 'Shortwave numbers station. OTP + straddling checkerboard, voice TX.']], stamp: 'EYES ONLY' },
+  { id: 'anagram', g: 2, icon: 'anagram', t: [['The Anagram Bench', 'Unscramble letters, find phrases, words in a jumble, crossword gaps.'], ['Lexical Engine', 'Anagram, phrase, sub-word and pattern search. 172k words.']], stamp: 'PUZZLE' },
+  { id: 'coldcases', g: 2, icon: 'coldcases', t: [['Cold Cases', 'The codes nobody has broken: Kryptos K4, Voynich, Zodiac, Beale and more.'], ['Unbroken Traffic', 'Intercepts that remain unread. Case notes and live ciphertext.']], stamp: 'UNSOLVED' },
 ];
 
 const COPY = {
@@ -255,3 +259,6 @@ route();
 if ('serviceWorker' in navigator && location.protocol === 'https:' && !isNative()) {
   navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW registration failed', e));
 }
+
+// Installed-app behaviour: no browser context menu except where text can be edited or copied
+document.addEventListener('contextmenu', e => { if (!e.target.closest('input, textarea, [contenteditable], .out, .out-big, .align-view, pre')) e.preventDefault(); });

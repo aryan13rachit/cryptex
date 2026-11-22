@@ -5,6 +5,11 @@ import { textToMorse, morseToText, morseTimeline, MorseTimingDecoder, unitMs } f
 import { MODES, encodeSSTV, SSTVDecoder } from '../js/lib/sstv.js';
 import { resample } from '../js/lib/dsp.js';
 import { soundToImage, imageToSound, toLuminance } from '../js/lib/soundpaper.js';
+import * as S from '../js/lib/spycraft.js';
+import { Lexicon } from '../js/lib/anagram.js';
+import { K4, K4_CLUES } from '../js/lib/coldcases.js';
+import { readFileSync } from 'node:fs';
+import { gunzipSync } from 'node:zlib';
 
 let pass = 0, fail = 0;
 const eq = (name, got, want) => {
@@ -130,6 +135,45 @@ for (const [name, opts] of [['Martin M1', {}], ['Scottie S1', { clock: 1.0015 }]
   ok('soundpaper pitch 1', Math.abs(f1 - 440) < 40, `got ${f1.toFixed(0)}`);
   ok('soundpaper pitch 2', Math.abs(f2 - 880) < 70, `got ${f2.toFixed(0)}`);
 }
+
+// ---- chaocipher (test vector from Moshe Rubin, "Chaocipher Revealed: The Algorithm", 2010) ----
+eq('chaocipher', S.chaocipher('WELLDONEISBETTERTHANWELLSAID'), 'OAHQHCNYNXTSZJRRHJBYHQKSOUJY');
+eq('chaocipher dec', S.chaocipher('OAHQHCNYNXTSZJRRHJBYHQKSOUJY', true), 'WELLDONEISBETTERTHANWELLSAID');
+// ---- jefferson wheel ----
+ok('jefferson disks are alphabets', S.DISKS.length === 36 && S.DISKS.every(d => [...d].sort().join('') === C.ALPHA));
+{
+  const order = S.parseOrder('7 2 19 4 33 12');
+  const ct = S.jefferson('Meet at the old mill', order, 5);
+  eq('jefferson round trip', S.jefferson(ct, order, 5, true), 'MEETATTHEOLDMILL');
+  ok('jefferson changes text', ct !== 'MEETATTHEOLDMILL');
+  ok('jefferson cylinder row', S.cylinderRows('MEETAT', order)[5] === ct.slice(0, 6));
+}
+ok('jefferson order rejects repeats', (() => { try { S.parseOrder('1 2 2'); return false; } catch { return true; } })());
+// ---- numbers station ----
+eq('checkerboard', S.checkerDecode(S.checkerEncode('Meet at dawn 0400')), 'MEET AT DAWN 0400');
+{
+  const d = S.padToGroups(S.checkerEncode('ABORT MISSION'));
+  const pad = S.makePad(d.length);
+  ok('groups of five', d.length % 5 === 0);
+  eq('one-time pad round trip', S.checkerDecode(S.padCombine(S.padCombine(d, pad), pad, true)), 'ABORT MISSION');
+}
+// ---- anagrams (full dictionary) ----
+{
+  const words = gunzipSync(readFileSync(new URL('../assets/dict/words.txt.gz', import.meta.url))).toString().split('\n').filter(Boolean);
+  const L = new Lexicon(words);
+  ok('dictionary size', words.length > 170000, words.length);
+  ok('anagram listen', L.anagrams('listen').includes('silent'));
+  ok('anagram blank', L.anagrams('c?t').includes('cat'));
+  ok('subwords', L.subwords('cryptex').includes('try'));
+  ok('pattern', L.pattern('cr?pt').includes('crypt'));
+  const ph = L.phrases('dormitory');
+  ok('phrase anagram', ph.includes('dirty room'), JSON.stringify(ph.slice(0, 8)));
+}
+// ---- Kryptos K4: 97 letters, and the clue positions hold the right ciphertext ----
+eq('K4 length', K4.length, 97);
+eq('K4 clue EASTNORTHEAST', K4.slice(21, 34), 'FLRVQQPRNGKSS');
+eq('K4 clue BERLINCLOCK', K4.slice(63, 74), 'NYPVTTMZFPK');
+ok('K4 clue lengths', K4_CLUES.every(([p, t]) => p - 1 + t.length <= 97));
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

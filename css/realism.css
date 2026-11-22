@@ -66,7 +66,7 @@
 /* Paper: real grain, darker edges, a soft lift shadow */
 [data-theme="detective"] .panel {
   background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .12 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23p)'/%3E%3C/svg%3E"),
+    url(../assets/tex/noise-2.png),
     radial-gradient(ellipse at 0% 0%, rgba(140, 95, 40, .2), transparent 40%),
     radial-gradient(ellipse at 100% 100%, rgba(140, 95, 40, .22), transparent 45%),
     linear-gradient(180deg, #f6ecd2, #f2e6c9 60%, #e8d6ab);
@@ -131,7 +131,7 @@
 /* Chrome bat-handle toggle on a black crinkle plate */
 [data-theme="radio"] input.switch {
   width: 64px; height: 34px; border-radius: 6px; border: 1px solid #000;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cfilter id='c'%3E%3CfeTurbulence baseFrequency='1.2' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='60' height='60' filter='url(%23c)'/%3E%3C/svg%3E"), #151714;
+  background: url(../assets/tex/noise-3.png), #151714;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 2px 3px rgba(0,0,0,.6);
 }
 [data-theme="radio"] input.switch::before {          /* hex nut */

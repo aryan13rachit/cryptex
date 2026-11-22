@@ -19,6 +19,10 @@ export const ICONS = {
   soundpaper: P('<path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M8 14h1.5l1-3 1.5 6 1.5-5 1 2H17"/>'),
   vault: P('<rect x="3" y="6" width="18" height="13" rx="1.5"/><path d="M3 7l9 6 9-6"/><circle cx="17.5" cy="16" r="3" fill="currentColor" stroke="none" opacity=".25"/>'),
   codebreaker: P('<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M7.5 12.5v-2M10.5 12.5v-5M13.5 12.5V9.5"/>'),
+  jefferson: P('<ellipse cx="12" cy="5" rx="8" ry="2.2"/><path d="M4 5v14c0 1.2 3.6 2.2 8 2.2s8-1 8-2.2V5"/><path d="M4 9.5c0 1.2 3.6 2.2 8 2.2s8-1 8-2.2M4 14c0 1.2 3.6 2.2 8 2.2s8-1 8-2.2"/>'),
+  numbers: P('<path d="M12 10v11M8 21h8"/><circle cx="12" cy="8" r="2"/><path d="M7.8 3.8a6 6 0 0 0 0 8.4M16.2 3.8a6 6 0 0 1 0 8.4M5 1.5a9.5 9.5 0 0 0 0 13M19 1.5a9.5 9.5 0 0 1 0 13"/>'),
+  anagram: P('<rect x="2.5" y="8" width="6" height="7" rx="1"/><rect x="9" y="5" width="6" height="7" rx="1"/><rect x="15.5" y="9" width="6" height="7" rx="1"/><path d="M5 19c3 2.5 11 2.5 14 0M17 17.5l2 1.5-1 2.2"/>'),
+  coldcases: P('<path d="M3 6h7l2 2h9v12H3z"/><path d="M10.5 12.2a2 2 0 1 1 2.6 1.9c-.6.2-1.1.7-1.1 1.4v.4M12 18.2v.1"/>'),
   play: P('<path d="M7 4l13 8-13 8z"/>'),
   stop: P('<rect x="6" y="6" width="12" height="12" rx="1"/>'),
   mic: P('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>'),
@@ -121,13 +125,14 @@ export function drawTrace(canvas, values, { threshold = null, marks = null } = {
     ctx.strokeStyle = c.accent; ctx.setLineDash([5, 4]);
     ctx.beginPath(); ctx.moveTo(0, h - threshold * h); ctx.lineTo(w, h - threshold * h); ctx.stroke(); ctx.setLineDash([]);
   }
-  ctx.strokeStyle = c.line; ctx.lineWidth = theme() === 'radio' ? 2 : 1.6;
-  if (theme() === 'radio') { ctx.shadowColor = c.line; ctx.shadowBlur = 6; }
+  ctx.strokeStyle = c.line;
   ctx.beginPath();
   const n = values.length;
   values.forEach((v, i) => { const x = i / Math.max(1, n - 1) * w, y = h - 4 - v * (h - 8); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+  // phosphor glow without shadowBlur (which is slow on phones): a wide faint stroke under the line
+  if (theme() === 'radio') { ctx.globalAlpha = .22; ctx.lineWidth = 6; ctx.stroke(); ctx.globalAlpha = 1; }
+  ctx.lineWidth = theme() === 'radio' ? 2 : 1.6;
   ctx.stroke();
-  ctx.shadowBlur = 0;
 }
 
 /** Pick a file via a hidden input. */

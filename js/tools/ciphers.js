@@ -1,5 +1,6 @@
 import { $, esc, textTool } from '../ui.js';
 import * as C from '../lib/classical.js';
+import { chaocipher, isAlphabet, CHAO_LEFT, CHAO_RIGHT } from '../lib/spycraft.js';
 
 const CIPHERS = {
   atbash: { name: 'Atbash (mirror alphabet)', run: t => C.atbash(t) },
@@ -24,6 +25,15 @@ const CIPHERS = {
   bacon: { name: "Bacon's cipher (A/B)", run: (t, d) => d ? C.baconDecode(t) : C.baconEncode(t) },
   a1z26: { name: 'A1Z26 (letter numbers)', run: (t, d) => d ? C.a1z26Decode(t) : C.a1z26Encode(t) },
   rot47: { name: 'ROT47 (all printable chars)', run: t => C.rot47(t) },
+  chao: {
+    name: 'Chaocipher (Byrne, 1918)',
+    params: `<div class="field"><label>Left wheel (cipher alphabet)</label><input type="text" id="pcl" value="${CHAO_LEFT}" spellcheck="false" maxlength="26"></div><div class="field"><label>Right wheel (plain alphabet)</label><input type="text" id="pcr" value="${CHAO_RIGHT}" spellcheck="false" maxlength="26"></div><p class="hint" style="margin:0">Both wheels are re-shuffled after every letter. Kept secret for 92 years; the method was published in 2010.</p>`,
+    run: (t, d) => {
+      const l = $('#pcl').value.toUpperCase(), r = $('#pcr').value.toUpperCase();
+      if (!isAlphabet(l) || !isAlphabet(r)) throw new Error('Each wheel needs all 26 letters, once each.');
+      return (chaocipher(t, d, l, r).match(/.{1,5}/g) || []).join(' ');
+    },
+  },
 };
 
 export function mount(root) {

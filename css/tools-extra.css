@@ -1,0 +1,81 @@
+/* Jefferson Wheel, Anagram Bench, Cold Cases, Numbers Station */
+
+/* ---------- Jefferson cylinder: one column per disk, all 26 rows ---------- */
+.jw-cyl { display: flex; gap: 3px; overflow-x: auto; padding: 8px 6px 10px; border-radius: 10px; touch-action: pan-x; -webkit-user-select: none; user-select: none; }
+.jw-disk { flex: 1 1 0; min-width: 21px; max-width: 40px; display: flex; flex-direction: column; align-items: stretch; border-radius: 7px; cursor: ns-resize; touch-action: none; position: relative; }
+.jw-disk i { font: 700 15px/1 var(--font-mono); font-style: normal; text-align: center; padding: 4px 0; }
+.jw-disk i.set { outline: 2px solid; outline-offset: -2px; border-radius: 3px; }
+.jw-disk i.hot { border-radius: 3px; }
+.jw-no { font: 9px var(--font-mono); text-align: center; padding: 3px 0 4px; opacity: .75; }
+[data-theme="detective"] .jw-cyl { background: linear-gradient(180deg, #3a2414, #2a190d); box-shadow: inset 0 2px 8px rgba(0,0,0,.6); }
+[data-theme="detective"] .jw-disk { background: linear-gradient(90deg, #8a6424, #e8c77a 35%, #f7e3a8 50%, #e2bd6a 65%, #7a561c); color: #2b1d0c; box-shadow: 0 1px 2px rgba(0,0,0,.5); }
+[data-theme="detective"] .jw-disk i.set { outline-color: #1f3d5c; background: rgba(31, 61, 92, .12); }
+[data-theme="detective"] .jw-disk i.hot { background: #a3221d; color: #fff3e0; }
+[data-theme="radio"] .jw-cyl { background: #0b0d0a; box-shadow: inset 0 2px 8px #000; }
+[data-theme="radio"] .jw-disk { background: linear-gradient(90deg, #5d625b, #d9dcd4 35%, #f2f3ef 50%, #c9ccc4 65%, #4f524d); color: #1b1d1a; }
+[data-theme="radio"] .jw-disk i.set { outline-color: #2f8f50; background: rgba(60, 220, 110, .18); }
+[data-theme="radio"] .jw-disk i.hot { background: #ffb340; color: #1a0e00; }
+
+/* ---------- Anagram Bench ---------- */
+.seg.wrap { flex-wrap: wrap; }
+.an-in { text-transform: uppercase; letter-spacing: .12em; font-family: var(--font-mono); }
+.an-tiles { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; min-height: 36px; }
+.an-tiles b { width: 32px; height: 34px; display: grid; place-items: center; font: 700 18px var(--font-mono); border-radius: 4px; }
+[data-theme="detective"] .an-tiles b { background: linear-gradient(180deg, #fbf3dc, #e9d9b0); color: #2a1d12; box-shadow: 0 2px 0 #b89c62, 0 3px 5px rgba(0,0,0,.35); }
+[data-theme="radio"] .an-tiles b { background: #0d1a10; color: #6dff9e; border: 1px solid #2c4a33; text-shadow: 0 0 6px rgba(92,255,138,.6); }
+.an-group + .an-group { margin-top: 12px; }
+.an-group h3 { margin: 0 0 6px; font: 12px var(--font-head); letter-spacing: .1em; text-transform: uppercase; opacity: .85; }
+.an-group h3 small { opacity: .6; margin-left: 6px; }
+.an-words { display: flex; flex-wrap: wrap; gap: 6px; }
+.an-w { font: 15px var(--font-mono); padding: 5px 9px; border-radius: 5px; border: 1px solid var(--rule); background: transparent; color: inherit; opacity: .62; }
+.an-w.common { opacity: 1; font-weight: 700; }
+[data-theme="detective"] .an-w { background: rgba(255, 250, 235, .55); }
+[data-theme="radio"] .an-w { background: rgba(92, 255, 138, .05); color: #b9ffd0; border-color: rgba(92,255,138,.25); }
+.an-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ---------- Cold Cases ---------- */
+.cc-intro { margin: 0 4px 14px; }
+.cc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.cc-head .panel-title { margin-bottom: 4px; }
+.cc-status { flex: none; font: 700 11px var(--font-mono); letter-spacing: .12em; padding: 3px 7px; white-space: nowrap; }
+[data-theme="detective"] .cc-status { color: #a3221d; border: 2px solid #a3221d; transform: rotate(4deg); opacity: .85;
+  -webkit-mask-image: url(../assets/tex/noise-1.png); mask-image: url(../assets/tex/noise-1.png); -webkit-mask-size: 140px; mask-size: 140px; }
+[data-theme="detective"] .cc-status.cc-sealed { color: #1f3d5c; border-color: #1f3d5c; }
+[data-theme="detective"] .cc-status.cc-partial { color: #8a5a00; border-color: #8a5a00; }
+[data-theme="radio"] .cc-status { color: #1a0e00; background: #ffb340; border-radius: 3px; box-shadow: 0 0 10px rgba(255,179,64,.45); }
+[data-theme="radio"] .cc-status.cc-sealed { background: #6cc4ff; box-shadow: 0 0 10px rgba(108,196,255,.45); }
+[data-theme="radio"] .cc-status.cc-partial { background: #5cff8a; box-shadow: 0 0 10px rgba(92,255,138,.45); }
+.cc-meta { margin: 0 0 8px; font: 12.5px var(--font-mono); opacity: .8; }
+.cc-sum { margin: 0 0 8px; line-height: 1.5; }
+.cc-more summary { cursor: pointer; font: 13px var(--font-head); letter-spacing: .08em; text-transform: uppercase; padding: 6px 0; }
+.cc-more ul { margin: 4px 0 8px; padding-left: 18px; line-height: 1.5; }
+.cc-more li + li { margin-top: 6px; }
+.cc-ct { font-size: 17px; letter-spacing: .2em; text-align: center; }
+.cc-k4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(17px, 1fr)); gap: 2px 1px; padding: 10px 8px; border-radius: 8px; margin-top: 6px; }
+.cc-k4 span { display: flex; flex-direction: column; align-items: center; font-family: var(--font-mono); }
+.cc-k4 b { font-size: 14px; }
+.cc-k4 i { font-size: 10px; font-style: normal; opacity: .35; }
+.cc-k4 .clue i { opacity: 1; font-weight: 700; }
+[data-theme="detective"] .cc-k4 { background: #2c2417; color: #e9dcc0; }
+[data-theme="detective"] .cc-k4 .clue b { color: #ffd27a; } [data-theme="detective"] .cc-k4 .clue i { color: #ff8a6a; }
+[data-theme="radio"] .cc-k4 { background: #041009; color: #6dff9e; box-shadow: inset 0 0 12px #000; }
+[data-theme="radio"] .cc-k4 .clue b, [data-theme="radio"] .cc-k4 .clue i { color: #ffb340; }
+.cc-cracked li > div { line-height: 1.4; }
+.cc-cracked small { opacity: .8; }
+
+/* ---------- Numbers Station ---------- */
+.ns-dial { display: flex; flex-wrap: wrap; gap: 6px 10px; padding: 12px; border-radius: 8px; min-height: 52px; align-items: center; }
+.ns-dial .ns-hdr { flex-basis: 100%; font: 11px var(--font-mono); letter-spacing: .16em; opacity: .7; }
+.ns-dial b { font: 700 18px var(--font-mono); letter-spacing: .12em; padding: 2px 4px; border-radius: 3px; transition: background .15s, color .15s; }
+[data-theme="detective"] .ns-dial { background: repeating-linear-gradient(180deg, transparent 0 27px, rgba(31,61,92,.12) 27px 28px), #f6edd6; color: #1c130a; box-shadow: inset 0 0 0 1px rgba(80,55,25,.25); }
+[data-theme="detective"] .ns-dial b.on { background: #a3221d; color: #fff3e0; }
+[data-theme="radio"] .ns-dial { background: #041009; color: #6dff9e; box-shadow: inset 0 0 14px #000; }
+[data-theme="radio"] .ns-dial b { text-shadow: 0 0 6px rgba(92,255,138,.5); }
+[data-theme="radio"] .ns-dial b.on { background: #ffb340; color: #1a0e00; text-shadow: none; }
+.ns-board { overflow-x: auto; }
+.ns-board table { border-collapse: collapse; margin: 0 auto; font-family: var(--font-mono); }
+.ns-board th, .ns-board td { width: 26px; height: 26px; text-align: center; font-size: 14px; border: 1px solid var(--rule); }
+.ns-board th { font-size: 11px; opacity: .7; }
+.ns-board td:empty { background: repeating-linear-gradient(45deg, transparent 0 4px, rgba(127,127,127,.18) 4px 6px); }
+[data-theme="detective"] .cc-intro { color: #e9d9b8; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+[data-theme="radio"] .cc-intro { color: #8fd8a6; }

@@ -172,8 +172,7 @@ export function mount(root) {
     ctx.fillStyle = g; ctx.fillRect(x(1500), 8, x(2300) - x(1500), 8);
     if (f) {
       ctx.strokeStyle = c.accent; ctx.lineWidth = 3;
-      if (theme() === 'radio') { ctx.shadowColor = c.accent; ctx.shadowBlur = 8; }
-      ctx.beginPath(); ctx.moveTo(x(f), 2); ctx.lineTo(x(f), h - 22); ctx.stroke(); ctx.shadowBlur = 0;
+      ctx.beginPath(); ctx.moveTo(x(f), 2); ctx.lineTo(x(f), h - 22); ctx.stroke();
     }
   }
   drawMeter(null);

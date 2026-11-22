@@ -29,6 +29,8 @@ export function mount(root) {
     </section>`;
 
   const inp = $('#cb-in', root);
+  const handoff = sessionStorage.getItem('cryptex-handoff');
+  if (handoff) { inp.value = handoff; sessionStorage.removeItem('cryptex-handoff'); }
   const analyse = () => {
     const t = inp.value;
     const c = letterCounts(t), n = c.reduce((a, b) => a + b, 0) || 1;

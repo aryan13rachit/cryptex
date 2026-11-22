@@ -87,17 +87,6 @@
 [data-theme="detective"] .card-title { color: #2a2214; }
 [data-theme="detective"] .card-sub { color: #5d4f33; opacity: 1; }
 
-/* ---------- Tape transport (SVG drawn to scale) ---------- */
-.tapebank { display: block; position: relative; padding: 10px; gap: 0; }
-.tapebank::after { display: none; }
-.tapebank .td { display: block; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 1px 0 rgba(255,255,255,.35), inset 0 0 0 1px rgba(0,0,0,.3); }
-.td-reel { transform-box: fill-box; transform-origin: center; }
-.tapebank.run .td-supply { animation: reel 4.2s linear infinite; }
-.tapebank.run .td-takeup { animation: reel 2.4s linear infinite; }
-.tapebank .bank-mid { position: absolute; left: 37%; right: 37%; top: 9%; height: 58%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
-.tapebank .bank-lights { grid-template-columns: repeat(4, 9px); gap: 5px; padding: 6px 7px; border-radius: 4px; }
-.tapebank .bank-lights i { width: 9px; height: 9px; }
-.tapebank .bank-mid span { font-size: 7.5px; letter-spacing: .16em; color: #2c2e2a; text-shadow: 0 1px 0 rgba(255,255,255,.55); white-space: nowrap; }
 /* ---------- Cipher disk materials ---------- */
 [data-theme="detective"] .wheel { --wo-1: #f7e3a2; --wo-2: #c99a3e; --wo-3: #7c5716; --wo-edge: #5a3f10;
   --wi-1: #fffaf0; --wi-2: #efe5cc; --wi-3: #cfc09b; --wi-edge: #9c8a62;

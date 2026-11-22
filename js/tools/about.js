@@ -132,7 +132,7 @@ export function mount(root) {
       svg.innerHTML = $$('[data-pin="note"]', board).map((n, i) => {
         const [x, y] = pt(n), mx = (hx + x) / 2, my = (hy + y) / 2 + Math.hypot(x - hx, y - hy) * 0.08;
         const len = Math.hypot(x - hx, y - hy) * 1.05;
-        const d = `M${hx},${hy} Q${mx},${my} ${x},${y}`, st = `--len:${len};animation-delay:${animate ? i * 0.12 : 0}s`; return `<path d="${d}" style="${st}" class="${animate ? 'draw' : ''}"/><path d="${d}" style="${st}" class="twist ${animate ? 'draw' : ''}"/>`;
+        const d = `M${hx},${hy} Q${mx},${my} ${x},${y}`, st = `--len:${len};animation-delay:${animate ? i * 0.12 : 0}s`; return `<path d="${d}" style="${st}" class="shade ${animate ? 'draw' : ''}" transform="translate(0 2)"/><path d="${d}" style="${st}" class="${animate ? 'draw' : ''}"/><path d="${d}" style="${st}" class="twist ${animate ? 'draw' : ''}"/>`;
       }).join('');
     };
     const showBoard = animate => {
@@ -157,8 +157,12 @@ export function mount(root) {
     later(1100, () => cover.classList.add('open'));
     later(1900, () => { cover.hidden = true; fillFields(() => later(250, stamp)); });
     // reveal the board when it scrolls into view
-    obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { obs.disconnect(); showBoard(true); } }, { threshold: 0.25 });
+    // pin the board before the reader scrolls to it (so the animation never competes with scrolling)
+    let shown = false;
+    const reveal = () => { if (shown) return; shown = true; obs?.disconnect(); showBoard(true); };
+    obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) reveal(); }, { rootMargin: '0px 0px 600px 0px' });
     later(1900, () => obs.observe($('#board', root)));
+    later(5200, reveal);
   }
 
   function note(e, i) {
@@ -186,7 +190,6 @@ export function mount(root) {
         <div class="monitor">
           <div class="bezel"><div class="crt" id="crt">
             <div class="crt-face" id="face"><canvas id="zola" role="img" aria-label="${esc(P.name)} rendered as glowing data on the terminal"></canvas></div><div class="crt-mask"></div>
-            <div class="crt-static" id="static"></div>
             <div class="crt-roll"></div>
             <div class="crt-content">
               <pre class="boot" id="boot"></pre>
@@ -197,8 +200,9 @@ export function mount(root) {
           <div class="chin"><span class="chin-brand">CRYPTEX · OPERATOR TERMINAL</span><span class="chin-knobs"><i></i><i></i></span><span class="chin-led" id="led"></span></div>
         </div>
         <div class="tapebank" aria-hidden="true">
-          ${tapeDeckSVG()}
+          <div class="reel"><i></i></div>
           <div class="bank-mid"><div class="bank-lights">${Array.from({ length: 12 }, (_, k) => `<i style="animation-delay:${(k * 0.37) % 1.9}s;animation-duration:${1.1 + (k * 0.29) % 1.4}s"></i>`).join('')}</div><span>MEMORY BANK 012</span></div>
+          <div class="reel"><i></i></div>
         </div>
 
         <div class="radio-sections" id="sections">
@@ -210,7 +214,7 @@ export function mount(root) {
         </div>
         <div class="about-actions"><button class="btn" id="replay">${ICONS.reset}Reboot</button></div>
       </div>`;
-    const crt = $('#crt', root), face = $('#face', root), stat = $('#static', root), boot = $('#boot', root);
+    const crt = $('#crt', root), face = $('#face', root), boot = $('#boot', root);
     shapeTube(crt); onResize = () => shapeTube(crt); window.addEventListener('resize', onResize);
     const bootText = 'CRYPTEX BIOS v2.6\nMEMORY TEST ...... 640K OK\nTRANSFERRING OPERATOR TO TERMINAL';
     const term = (ch, i) => { if (ch === '\n') sfx('beep'); else if (ch !== ' ' && i % 2) sfx('chirp'); };
@@ -228,9 +232,9 @@ export function mount(root) {
     later(1100, () => {
       crt.classList.add('ready');
       typeInto(boot, bootText + '\n', 16, () => later(250, () => {
-        // burst of static, then the face resolves out of it
-        stat.classList.add('burst'); boot.classList.add('gone'); sfx('static');
-        later(700, () => { stopZola = startZola($('#zola', root), crt); face.classList.add('show'); stat.classList.remove('burst'); });
+        // the boot text clears and the face resolves on the tube
+        boot.classList.add('gone');
+        later(500, () => { stopZola = startZola($('#zola', root), crt); face.classList.add('show'); });
         later(1700, () => typeInto($('#cname', root), P.name.toUpperCase(), 40, () =>
           typeInto($('#crole', root), 'DEVELOPER · CODEBREAKER', 22, () => later(120, finish), term), term));
       }), term);
@@ -251,15 +255,16 @@ export function mount(root) {
       ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
       for (let x = 0; x < w; x += 24) { ctx.beginPath(); ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, h); ctx.stroke(); }
       ctx.beginPath(); ctx.moveTo(0, h / 2 + .5); ctx.lineTo(w, h / 2 + .5); ctx.stroke();
-      ctx.strokeStyle = c.line; ctx.lineWidth = 1.6; ctx.shadowColor = c.line; ctx.shadowBlur = 6;
       ctx.beginPath();
       const off = (now - t0) / 1000 * 60;
       for (let x = 0; x <= w; x++) {
         const pos = (x + off) / unitPx, u = units[Math.floor(pos) % units.length];
-        const y = h / 2 - (u ? Math.sin(pos * 9) * h * 0.34 : (Math.random() - .5) * 2);
+        const y = h / 2 - (u ? Math.sin(pos * 9) * h * 0.34 : 0);
         x ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
       }
-      ctx.stroke(); ctx.shadowBlur = 0;
+      // glow without shadowBlur: a wide faint stroke under the thin bright one
+      ctx.strokeStyle = c.line; ctx.globalAlpha = .25; ctx.lineWidth = 5; ctx.stroke();
+      ctx.globalAlpha = 1; ctx.lineWidth = 1.6; ctx.stroke();
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -335,92 +340,6 @@ function drawNoir(cv) {
   };
   img.src = 'assets/dev-anon.jpg';
 }
-/**
- * Reel-to-reel transport drawn to scale (modelled on 1970s decks such as the Sony TC-630):
- * smoked-plastic reels with three windows over glossy tape packs, white hubs, and a tape path that
- * leaves each pack on a true tangent, wraps the guide posts and crosses the head block,
- * capstan and pinch roller. Supply (left) is full, take-up (right) nearly empty.
- */
-function tapeDeckSVG() {
-  const W = 400, H = 200, R = 64, rg = 5, tapeY = 168;
-  const L = { x: 80, y: 80, pack: 58 }, Rr = { x: 320, y: 80, pack: 33 };
-  const GL = { x: 150, y: tapeY - rg }, GR = { x: 250, y: tapeY - rg };
-  // tangent from external point P to circle (c, r); side = +1 picks the tangent point to the right
-  const tangent = (c, r, P, side) => {
-    const dx = P.x - c.x, dy = P.y - c.y, d = Math.hypot(dx, dy), a = Math.atan2(dy, dx), o = Math.acos(r / d);
-    const t1 = [c.x + r * Math.cos(a + o), c.y + r * Math.sin(a + o)], t2 = [c.x + r * Math.cos(a - o), c.y + r * Math.sin(a - o)];
-    return (t1[0] - t2[0]) * side > 0 ? t1 : t2;
-  };
-  const pL = { x: GL.x - rg, y: GL.y }, pR = { x: GR.x + rg, y: GR.y };
-  const tL = tangent(L, L.pack, pL, 1), tR = tangent(Rr, Rr.pack, pR, -1);
-  const f = n => n.toFixed(2);
-  const tape = `M${f(tL[0])},${f(tL[1])} L${f(pL.x)},${f(pL.y)} A${rg},${rg} 0 0 0 ${GL.x},${tapeY} L${GR.x},${tapeY} A${rg},${rg} 0 0 0 ${f(pR.x)},${f(pR.y)} L${f(tR[0])},${f(tR[1])}`;
-  // reel flange with three kidney windows (annular sectors) cut out
-  const flange = () => {
-    let d = `M${R},0 A${R},${R} 0 1 1 ${-R},0 A${R},${R} 0 1 1 ${R},0 Z`;
-    for (let k = 0; k < 3; k++) {
-      const a0 = (k * 120 - 33) * Math.PI / 180, a1 = (k * 120 + 33) * Math.PI / 180, r0 = 24, r1 = R - 6;
-      const P = (r, a) => `${f(r * Math.cos(a))},${f(r * Math.sin(a))}`;
-      d += ` M${P(r0, a0)} L${P(r1, a0)} A${r1},${r1} 0 0 1 ${P(r1, a1)} L${P(r0, a1)} A${r0},${r0} 0 0 0 ${P(r0, a0)} Z`;
-    }
-    return d;
-  };
-  const packRings = r => Array.from({ length: Math.floor((r - 20) / 2.2) }, (_, i) => `<circle r="${f(20 + i * 2.2)}" fill="none" stroke="rgba(255,235,210,${(0.025 + ((i * 7) % 5) * 0.012).toFixed(3)})" stroke-width=".7"/>`).join('');
-  const reel = (c, cls) => `
-    <g transform="translate(${c.x} ${c.y})">
-      <circle r="${R + 1.5}" fill="rgba(0,0,0,.35)" transform="translate(2 3)" filter="url(#tdBlur)"/>
-      <circle r="${c.pack}" fill="url(#tdPack)"/>${packRings(c.pack)}
-      <circle r="${c.pack}" fill="url(#tdSheen)"/>
-      <g class="td-reel ${cls}">
-        <path d="${flange()}" fill="url(#tdSmoke)" fill-rule="evenodd" stroke="rgba(255,255,255,.55)" stroke-width=".8"/>
-        <circle r="${R - 1.2}" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1"/>
-        <circle r="19" fill="url(#tdHub)" stroke="#9c9a92" stroke-width=".8"/>
-        ${[0, 120, 240].map(a => `<rect x="-2.6" y="-15" width="5.2" height="6" rx="1" fill="#2b2a27" transform="rotate(${a})"/>`).join('')}
-        <circle r="6.5" fill="url(#tdChrome)" stroke="#555" stroke-width=".6"/>
-        ${[60, 180, 300].map(a => `<rect x="-1.4" y="-9.5" width="2.8" height="4" rx=".8" fill="url(#tdChrome)" transform="rotate(${a})"/>`).join('')}
-      </g>
-      <path d="M${-R * .62},${-R * .55} A${R * .82},${R * .82} 0 0 1 ${R * .35},${-R * .78}" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2.5" stroke-linecap="round"/>
-    </g>`;
-  const screw = (x, y) => `<image href="assets/hw/screw-steel.svg" x="${x - 5}" y="${y - 5}" width="10" height="10"/>`;
-  return `
-  <svg class="td" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
-    <defs>
-      <pattern id="tdAl" patternUnits="userSpaceOnUse" width="400" height="400"><image href="assets/tex/brushed-light.jpg" width="400" height="400" preserveAspectRatio="none"/></pattern>
-      <linearGradient id="tdPlateLight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient>
-      <radialGradient id="tdPack"><stop offset=".3" stop-color="#3b2a1d"/><stop offset=".75" stop-color="#2b1d13"/><stop offset="1" stop-color="#1c120b"/></radialGradient>
-      <linearGradient id="tdSheen" x1="0" y1="0" x2="1" y2="1"><stop offset=".25" stop-color="#fff" stop-opacity="0"/><stop offset=".45" stop-color="#ffe9d0" stop-opacity=".16"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></linearGradient>
-      <radialGradient id="tdSmoke" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#e8ecef" stop-opacity=".42"/><stop offset=".7" stop-color="#c9ced3" stop-opacity=".24"/><stop offset="1" stop-color="#9aa0a6" stop-opacity=".38"/></radialGradient>
-      <radialGradient id="tdHub" cx=".4" cy=".35"><stop offset="0" stop-color="#ffffff"/><stop offset=".7" stop-color="#e6e3da"/><stop offset="1" stop-color="#bdb9ae"/></radialGradient>
-      <radialGradient id="tdChrome" cx=".35" cy=".3"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#a9ada6"/><stop offset="1" stop-color="#4f524d"/></radialGradient>
-      <linearGradient id="tdTape" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a281b"/><stop offset=".5" stop-color="#4a3424"/><stop offset="1" stop-color="#3a281b"/></linearGradient>
-      <linearGradient id="tdHeadCover" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3d38"/><stop offset="1" stop-color="#1c1e1b"/></linearGradient>
-      <linearGradient id="tdHead" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6f736c"/><stop offset=".45" stop-color="#f2f3ef"/><stop offset="1" stop-color="#7c8079"/></linearGradient>
-      <radialGradient id="tdRubber" cx=".38" cy=".32"><stop offset="0" stop-color="#4a4a4a"/><stop offset=".6" stop-color="#191919"/><stop offset="1" stop-color="#0a0a0a"/></radialGradient>
-      <filter id="tdBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter>
-    </defs>
-    <!-- deck plate -->
-    <rect x="1" y="1" width="${W - 2}" height="${H - 2}" rx="8" fill="url(#tdAl)" stroke="#5c5f58" stroke-width="1.5"/>
-    <rect x="1" y="1" width="${W - 2}" height="${H - 2}" rx="8" fill="url(#tdPlateLight)"/>
-    <rect x="3" y="3" width="${W - 6}" height="${H - 6}" rx="7" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1"/>
-    ${screw(12, 12)}${screw(W - 12, 12)}${screw(12, H - 12)}${screw(W - 12, H - 12)}
-    <!-- head block -->
-    <rect x="${GL.x + 12}" y="${tapeY - 26}" width="${GR.x - GL.x - 24}" height="34" rx="4" fill="url(#tdHeadCover)" stroke="#0c0d0b"/>
-    ${[175, 200, 225].map(x => `<rect x="${x - 6}" y="${tapeY - 9}" width="12" height="10" rx="2.5" fill="url(#tdHead)" stroke="#3a3c38" stroke-width=".6"/><rect x="${x - .4}" y="${tapeY - 9}" width=".8" height="10" fill="#222"/>`).join('')}
-    <!-- guide posts -->
-    ${[GL, GR].map(g => `<circle cx="${g.x}" cy="${g.y}" r="${rg + 2.5}" fill="#2a2c28"/><circle cx="${g.x}" cy="${g.y}" r="${rg}" fill="url(#tdChrome)"/>`).join('')}
-    <!-- capstan + pinch roller -->
-    <circle cx="${GR.x - 8}" cy="${tapeY + 13}" r="9" fill="url(#tdRubber)" stroke="#000" stroke-width=".6"/>
-    <circle cx="${GR.x - 8}" cy="${tapeY + 13}" r="2.2" fill="url(#tdChrome)"/>
-    <circle cx="${GR.x - 8}" cy="${tapeY - 4}" r="2.6" fill="url(#tdChrome)" stroke="#333" stroke-width=".5"/>
-    <!-- reels -->
-    ${reel(L, 'td-supply')}${reel(Rr, 'td-takeup')}
-    <!-- tape -->
-    <path d="${tape}" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="3.2" transform="translate(.8 1.4)"/>
-    <path d="${tape}" fill="none" stroke="url(#tdTape)" stroke-width="2.4" stroke-linejoin="round"/>
-    <path d="${tape}" fill="none" stroke="rgba(255,225,190,.22)" stroke-width=".6"/>
-  </svg>`;
-}
-
 /**
  * Curved tube: the glass is convex, so every edge bows outward. Built as a clip-path in pixels.
  */
@@ -501,11 +420,13 @@ function startZola(cv, crt) {
     const head = Float32Array.from({ length: cols }, () => Math.random() * rows * 1.6);
     const speed = Float32Array.from({ length: cols }, () => 0.18 + Math.random() * 0.5);
     const seed = Float32Array.from({ length: cols * rows }, () => Math.random());
+    const LEVELS = 8, paths = new Array(LEVELS * 2);
+    const styles = Array.from({ length: LEVELS * 2 }, (_, q) => q < LEVELS ? `rgba(70, 255, 120, ${((q % LEVELS) + 0.5) / LEVELS})` : `rgba(200, 255, 205, ${((q % LEVELS) + 0.5) / LEVELS})`);
     let last = 0;
     const frame = now => {
       if (!alive) return;
       raf = requestAnimationFrame(frame);
-      if (now - last < 33) return;          // ~30 fps is plenty for a CRT
+      if (now - last < 50) return;          // 20 fps is plenty for a CRT and keeps phones cool
       last = now;
       ctx.globalCompositeOperation = 'source-over';
       ctx.fillStyle = '#041a0e'; ctx.fillRect(0, 0, W, H);
@@ -514,13 +435,15 @@ function startZola(cv, crt) {
       ctx.drawImage(shade, 0, 0, W, H);
       ctx.globalCompositeOperation = 'lighter';
       const dashW = Math.max(1.5, 1.7 * dpr), dashH = cellH * 0.78;
+      // batch glyphs into brightness buckets: one fill per bucket instead of one per glyph
+      for (let q = 0; q < LEVELS * 2; q++) paths[q] = new Path2D();
       for (let x = 0; x < cols; x++) {
         head[x] += speed[x];
         if (head[x] > rows * 1.4) head[x] = -Math.random() * rows * 0.5;
         const jx = (seed[x] - 0.5) * cellW * 0.5;
         for (let y = 0; y < rows; y++) {
           const i = y * cols + x;
-          let b = B[i];
+          const b = B[i];
           const d = head[x] - y;                                   // rain: brightest at the head, fading trail above it
           const rain = d >= 0 && d < 9 ? 1 - d / 9 : 0;
           const flick = 0.75 + 0.5 * Math.random();
@@ -528,12 +451,13 @@ function startZola(cv, crt) {
           if (rain > 0.85 && b > 0.12) a = Math.max(a, 0.9);
           if (a < 0.06) continue;
           const [mx, my] = map(x * cellW + jx, y * cellH);
+          const path = paths[(a > 0.8 ? LEVELS : 0) + Math.min(LEVELS - 1, Math.floor(a * LEVELS))];
           // most cells are a single dash; some are two-part glyphs
-          ctx.fillStyle = a > 0.8 ? `rgba(200, 255, 205, ${Math.min(1, a)})` : `rgba(70, 255, 120, ${Math.min(1, a)})`;
-          if (seed[i] > 0.7) { ctx.fillRect(mx, my, dashW, dashH * 0.45); ctx.fillRect(mx, my + dashH * 0.6, dashW, dashH * 0.4); }
-          else ctx.fillRect(mx, my, dashW, dashH);
+          if (seed[i] > 0.7) { path.rect(mx, my, dashW, dashH * 0.45); path.rect(mx, my + dashH * 0.6, dashW, dashH * 0.4); }
+          else path.rect(mx, my, dashW, dashH);
         }
       }
+      for (let q = 0; q < LEVELS * 2; q++) { ctx.fillStyle = styles[q]; ctx.fill(paths[q]); }
     };
     raf = requestAnimationFrame(frame);
   };

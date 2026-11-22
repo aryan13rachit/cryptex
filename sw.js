@@ -1,16 +1,19 @@
 // Offline cache for Cryptex. Bump VERSION when files change.
-const VERSION = 'cryptex-v12';
+const VERSION = 'cryptex-v30';
 const FILES = [
-  './', 'index.html', 'manifest.webmanifest',
-  'css/app.css', 'css/theme-detective.css', 'css/theme-radio.css', 'css/enhance.css', 'css/polish.css', 'css/about.css', 'css/realism.css', 'css/materials.css', 'css/reference.css', 'assets/tex/walnut.jpg', 'assets/tex/paper.jpg', 'assets/tex/manila.jpg', 'assets/tex/cork.jpg', 'assets/tex/brushed-light.jpg', 'assets/tex/brushed-dark.jpg', 'assets/tex/crinkle.jpg', 'assets/tex/plastic.jpg', 'assets/hw/screw-steel.svg', 'assets/hw/screw-brass.svg', 'assets/hw/reel.svg',
-  'js/app.js', 'js/ui.js',
-  'js/lib/classical.js', 'js/lib/enigma.js', 'js/lib/morse.js', 'js/lib/dsp.js', 'js/lib/sstv.js', 'js/lib/soundpaper.js', 'js/lib/audio.js', 'js/lib/camera.js', 'js/lib/sfx.js', 'js/lib/native.js',
-  'js/worklets/processors.js',
-  'js/tools/caesar.js', 'js/tools/vigenere.js', 'js/tools/ciphers.js', 'js/tools/encoders.js', 'js/tools/morse.js', 'js/tools/lightbeam.js',
-  'js/tools/enigma.js', 'js/tools/sstv.js', 'js/tools/soundpaper.js', 'js/tools/vault.js', 'js/tools/codebreaker.js', 'js/tools/about.js',
-  'assets/icon.svg', 'assets/dev-anon.jpg', 'assets/dev-soft.jpg', 'assets/icon-192.png', 'assets/icon-512.png',
-  'assets/fonts/SpecialElite-Regular.ttf', 'assets/fonts/CourierPrime-Regular.ttf', 'assets/fonts/CourierPrime-Bold.ttf',
-  'assets/fonts/VT323-Regular.ttf', 'assets/fonts/ShareTechMono-Regular.ttf',
+  './', 'index.html', 'manifest.webmanifest', 'css/about.css', 'css/app-shell.css', 'css/app.css', 'css/enhance.css', 'css/materials.css',
+  'css/polish.css', 'css/realism.css', 'css/reference.css', 'css/theme-detective.css', 'css/theme-radio.css', 'css/tools-extra.css', 'js/app.js',
+  'js/ui.js', 'js/lib/anagram.js', 'js/lib/audio.js', 'js/lib/camera.js', 'js/lib/classical.js', 'js/lib/coldcases.js', 'js/lib/dsp.js',
+  'js/lib/enigma.js', 'js/lib/morse.js', 'js/lib/native.js', 'js/lib/sfx.js', 'js/lib/soundpaper.js', 'js/lib/spycraft.js', 'js/lib/sstv.js',
+  'js/tools/about.js', 'js/tools/anagram.js', 'js/tools/caesar.js', 'js/tools/ciphers.js', 'js/tools/codebreaker.js', 'js/tools/coldcases.js',
+  'js/tools/encoders.js', 'js/tools/enigma.js', 'js/tools/jefferson.js', 'js/tools/lightbeam.js', 'js/tools/morse.js', 'js/tools/numbers.js',
+  'js/tools/soundpaper.js', 'js/tools/sstv.js', 'js/tools/vault.js', 'js/tools/vigenere.js', 'js/worklets/processors.js', 'assets/dev-anon.jpg',
+  'assets/dev-soft.jpg', 'assets/icon-192.png', 'assets/icon-512.png', 'assets/icon.svg', 'assets/dict/words.txt.gz',
+  'assets/fonts/CourierPrime-Bold.ttf', 'assets/fonts/CourierPrime-Regular.ttf', 'assets/fonts/ShareTechMono-Regular.ttf',
+  'assets/fonts/SpecialElite-Regular.ttf', 'assets/fonts/VT323-Regular.ttf', 'assets/hw/reel.svg', 'assets/hw/screw-brass.svg',
+  'assets/hw/screw-steel.svg', 'assets/tex/brushed-dark.jpg', 'assets/tex/brushed-light.jpg', 'assets/tex/cork.jpg', 'assets/tex/crinkle.jpg',
+  'assets/tex/manila.jpg', 'assets/tex/noise-1.png', 'assets/tex/noise-2.png', 'assets/tex/noise-3.png', 'assets/tex/noise-4.png',
+  'assets/tex/paper.jpg', 'assets/tex/plastic.jpg', 'assets/tex/walnut.jpg',
 ];
 
 self.addEventListener('install', e => {
